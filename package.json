@@ -1,0 +1,19 @@
+{
+  "name": "cation",
+  "description": "Node.js Dependency Container",
+  "version": "0.1.1",
+  "author": "Moobin <info@moobin.net>",
+  "maintainers": [
+    "sergiolepore <slepore@moobin.net>",
+    "MarceloMira <mmira@moobin.net>",
+    "joelalejandro <joel.alejandro@moobin.net>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Moobin/Cation.git"
+  },
+  "main": "./lib/cation",
+  "engines": {
+    "node": ">= 0.8.9"
+  }
+}
