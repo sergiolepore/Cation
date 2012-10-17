@@ -10,9 +10,3 @@ Usage
     var ejs = cation.get('ejs');  
     var my_mod = cation.get('my_module');
     var another = cation.get('another_module');
-
-Changelog
----------
-
-0.2.0:
-* Added support for parameters on module paths

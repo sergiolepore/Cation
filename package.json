@@ -1,7 +1,7 @@
 {
   "name": "cation",
   "description": "Node.js Dependency Container",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Moobin <info@moobin.net>",
   "maintainers": [
     "sergiolepore <slepore@moobin.net>",
@@ -12,7 +12,17 @@
     "type": "git",
     "url": "https://github.com/Moobin/Cation.git"
   },
+  "keywords": [
+    "cli",
+    "dependency",
+    "injection",
+    "container",
+    "service",
+    "constructor",
+    "factory"
+  ],
   "main": "./lib/cation",
+  "license": "BSD-3",
   "engines": {
     "node": "*"
   }
