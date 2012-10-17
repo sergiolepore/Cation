@@ -1,16 +1,17 @@
-## 0.3.0 ()
+## 1.0.0 (Oct 17, 2012)
 
 Features:
 
-  - Type here
-
-Bugfixes:
-
-  - Type here
+  - Full dependency injection container.
+  - Service schemas can be setted via constructor or setters, in JSON format.
+  - Common parameters, shared between all services hosted on the container.
+  - Service definitions can be references loaded inside the container.
+  - Triggers to execute service methods, useful for setter injection or quick configuration.
+  - And again, all of this features can be handled on a simple json schema.
 
 Documentation:
 
-  - Type here
+  - Added for dependency injection.
 
 ## 0.2.1 (Oct 08, 2012)
 
