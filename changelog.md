@@ -11,7 +11,11 @@ Features:
 
 Documentation:
 
-  - Added docs and refereces for dependency injection.
+  - Added docs and refereces for dependency injection. (pending)
+
+ToDos:
+
+  - See "todo.md"
 
 ## 0.2.1 (Oct 08, 2012)
 
