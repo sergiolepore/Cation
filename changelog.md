@@ -3,7 +3,7 @@
 Features:
 
   - Full dependency injection container.
-  - Service schemas can be setted via constructor or setters, in JSON format.
+  - Service schemas can be set via constructor or setters, in JSON format.
   - Support for common parameters, shared between all services hosted on the container.
   - Service definitions can be references loaded inside the container.
   - Triggers to execute service methods, useful for setter injection or quick configuration.
