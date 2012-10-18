@@ -1,7 +1,7 @@
 {
   "name": "cation",
   "description": "Node.js Dependency Container",
-  "version": "0.2.0",
+  "version": "1.0.0-alpha",
   "author": "Moobin <info@moobin.net>",
   "maintainers": [
     "sergiolepore <slepore@moobin.net>",
@@ -12,8 +12,24 @@
     "type": "git",
     "url": "https://github.com/Moobin/Cation.git"
   },
+  "scripts": {
+    "test": "vows --spec test/dependency-injection-test.js"
+  },
+  "devDependencies": {
+    "vows": ">= 0.5.9"
+  },
+  "keywords": [
+    "cli",
+    "dependency",
+    "injection",
+    "container",
+    "service",
+    "constructor",
+    "factory"
+  ],
   "main": "./lib/cation",
+  "license": "BSD-3",
   "engines": {
-    "node": "*"
+    "node": ">= 0.8.12"
   }
 }
