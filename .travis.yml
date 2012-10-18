@@ -6,6 +6,5 @@ branches:
   only:
     - master
 
-notifications:
-  email:
-    - slepore@moobin.net
+#notifications:
+#  email: false

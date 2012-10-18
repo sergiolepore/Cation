@@ -4,14 +4,14 @@ Features:
 
   - Full dependency injection container.
   - Service schemas can be setted via constructor or setters, in JSON format.
-  - Common parameters, shared between all services hosted on the container.
+  - Support for common parameters, shared between all services hosted on the container.
   - Service definitions can be references loaded inside the container.
   - Triggers to execute service methods, useful for setter injection or quick configuration.
   - And again, all of this features can be handled on a simple json schema.
 
 Documentation:
 
-  - Added for dependency injection.
+  - Added docs and refereces for dependency injection.
 
 ## 0.2.1 (Oct 08, 2012)
 
