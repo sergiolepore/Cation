@@ -15,6 +15,9 @@
   "scripts": {
     "test": "vows --spec test/dependency-injection-test.js"
   },
+  "dependencies": {
+    "param_replacer": ">= 0.1.2"
+  },
   "devDependencies": {
     "vows": ">= 0.5.9"
   },
