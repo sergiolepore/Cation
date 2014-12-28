@@ -19,7 +19,7 @@ change into:
         "third": [],
         "fourth": {
           "args": ["args"],
-          "add_as": "another.service"
+          "build_as": "another.service"
         } 
       },
       "build": {
@@ -41,7 +41,7 @@ above implementation allows to do the following:
           "require": "express",
           "calls": {
             "createServer": {
-              "return_set_in": "express.app"
+              "build_as": "express.app"
             }
           }
         },
@@ -65,3 +65,15 @@ above implementation allows to do the following:
     var app = container.get('express.app');
     var express = container.get('express');
 
+
+
+/// ---------
+
+Service bag will contain:
+
+"express": { //namespace global
+  "require":...
+  "app": object //y aca se van attacheando las cosas
+}
+
+eso es para @express.app - @express.require etc etc

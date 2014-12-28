@@ -1,4 +1,16 @@
-## 1.0.0 (Oct 17, 2012)
+## 1.0.0-Alpha.2 (Nov 09, 2012)
+
+Features:
+
+  - Support for JSON parameters. Ie: %a.b.c% -> {a: {b: {c: 'value'} } }
+  - Added "build" option. This allows to specify a different builder method. Ie: {..., "build": { "listen": ["@express.app"] } }
+  - Added "build_as" for "calls". This allows to put the execution of the called method as another service inside the container.
+
+Documentation:
+
+  - Added doc index, chapters and how-to's.
+
+## 1.0.0-Alpha (Oct 17, 2012)
 
 Features:
 
