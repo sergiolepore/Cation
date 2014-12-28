@@ -3,7 +3,7 @@
 Node.js Service Container
 
 
-[![Build Status](https://travis-ci.org/Moobin/Cation.png?branch=master)](https://travis-ci.org/Moobin/Cation)
+[![Build Status](https://travis-ci.org/sergiolepore/Cation.png?branch=master)](https://travis-ci.org/sergiolepore/Cation)
 
 ## Install
 
@@ -71,6 +71,6 @@ Node.js Service Container
 
     ================================================================================
 
-    This software consists of voluntary contributions made by individuals and a 
-    group of developers who take part in Moobin (tm) organization and is licensed 
+    This software consists of voluntary contributions made by individuals and a
+    group of developers who take part in Moobin (tm) organization and is licensed
     under BSD-3 Licence.
