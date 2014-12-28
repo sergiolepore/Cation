@@ -1,25 +1,29 @@
 {
   "name": "cation",
   "description": "Node.js Dependency Container",
-  "version": "1.0.0-alpha",
-  "author": "Moobin <info@moobin.net>",
-  "maintainers": [
-    "sergiolepore <slepore@moobin.net>",
-    "MarceloMira <mmira@moobin.net>",
-    "joelalejandro <joel.alejandro@moobin.net>"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Moobin/Cation.git"
-  },
+  "version": "2.0.0-alpha",
+  "main": "index.js",
   "scripts": {
-    "test": "vows --spec test/dependency-injection-test.js"
+    "test": "make test"
   },
   "dependencies": {
-    "param_replacer": ">= 0.1.2"
+    "param_replacer": "^0.2.0"
   },
   "devDependencies": {
-    "vows": ">= 0.5.9"
+    "gulp": "^3.8.10",
+    "gulp-jshint": "^1.9.0",
+    "gulp-mocha": "^2.0.0",
+    "jshint-stylish": "^1.0.0",
+    "mocha": "^2.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sergiolepore/Cation.git"
+  },
+  "author": {
+    "name": "Sergio Lepore",
+    "email": "sergio.d.lepore@gmail.com",
+    "url": "http://www.sergiolepore.net/"
   },
   "keywords": [
     "cli",
@@ -30,9 +34,9 @@
     "constructor",
     "factory"
   ],
-  "main": "./lib/cation",
-  "license": "BSD-3",
-  "engines": {
-    "node": ">= 0.8.12"
-  }
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sergiolepore/Cation/issues"
+  },
+  "homepage": "https://github.com/sergiolepore/Cation"
 }
