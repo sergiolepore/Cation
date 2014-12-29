@@ -1,5 +1,3 @@
 test:
 	gulp test
-
-	.PHONY: test
-	
+.PHONY: test
