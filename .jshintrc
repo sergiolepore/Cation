@@ -1,0 +1,19 @@
+{
+  "node": true,
+  "curly": true,
+  "eqeqeq": true,
+  "boss": true,
+  "laxbreak": false,
+  "laxcomma": false,
+  "newcap": false,
+  "noarg": true,
+  "undef": true,
+  "sub": true,
+  "strict": false,
+  "eqnull": true,
+  "unused": true,
+  "indent": 2,
+  "esnext": true,
+  "mocha": true,
+  "asi": true
+}
