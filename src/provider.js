@@ -9,7 +9,7 @@
  * @var {Cation}
  * @api private
  */
-var containerInstance
+var __containerInstance__ = Symbol()
 
 /**
  * Resource Object.
@@ -18,7 +18,7 @@ var containerInstance
  * @var {mixed}
  * @api private
  */
-var resourceObject
+var __resourceObject__ = Symbol()
 
 /**
  * Resource Arguments.
@@ -28,7 +28,7 @@ var resourceObject
  * @var {Array}
  * @api private
  */
-var resourceArguments
+var __resourceArguments__ = Symbol()
 
 /**
  * Resource Type.
@@ -37,7 +37,7 @@ var resourceArguments
  * @type {String}
  * @api private
  */
-var resourceType
+var __resourceType__ = Symbol()
 
 /**
  * Is Singleton.
@@ -46,7 +46,7 @@ var resourceType
  * @type {Boolean}
  * @api private
  */
-var isSingleton
+var __isSingleton__ = Symbol()
 
 /**
  * TODO
@@ -67,7 +67,7 @@ var isSingleton
  * @type {Array}
  * @api private
  */
-var decoratorsToApply
+var __decoratorsToApply__ = Symbol()
 
 /**
  * Resource Instance.
@@ -76,7 +76,7 @@ var decoratorsToApply
  * @type {mixed}
  * @api private
  */
-var resourceInstance
+var __resourceInstance__ = Symbol()
 
 /**
  * Functions that initialize the Provider, depending on the resource type.
@@ -96,12 +96,12 @@ var resourceTypeInitializers = {
    * @api private
    */
   default(resource, args, options) {
-    resourceObject    = resource
-    resourceArguments = args
-    resourceType      = options.type
-    isSingleton       = options.singleton
+    this[__resourceObject__]    = resource
+    this[__resourceArguments__] = args
+    this[__resourceType__]      = options.type
+    this[__isSingleton__]       = options.singleton
     // TODO entitiesToInject  = options.inject
-    decoratorsToApply = options.decorators
+    this[__decoratorsToApply__] = options.decorators
   }
 }
 
@@ -126,17 +126,20 @@ var resourceTypeResolvers = {
    * @param  {Function} resolve   Callback `function(resolvedResource) { ... }`
    * @api private
    */
-  service(resolve, reject) {
+  service() {
+    let resourceInstance = this[__resourceInstance__]
+    let isSingleton      = this[__isSingleton__]
+
     if (isSingleton && typeof resourceInstance !== 'undefined') {
-      return resolve(resourceInstance)
+      return Promise.resolve(resourceInstance)
     }
 
-    applyArguments().then(Service => {
-      resourceInstance = new Service()
+    let applyArgsPromise = applyResourceArguments.apply(this)
 
-      return resolve(resourceInstance)
-    }).catch(reason => {
-      return reject(reason)
+    return applyArgsPromise.then(Service => {
+      this[__resourceInstance__] = new Service()
+
+      return this[__resourceInstance__]
     })
   },
 
@@ -146,7 +149,7 @@ var resourceTypeResolvers = {
    * @param  {Function} resolve   Callback `function(resolvedResource) { ... }`
    * @api private
    */
-  factory(resolve) {
+  factory() {
 
   },
 
@@ -156,8 +159,8 @@ var resourceTypeResolvers = {
    * @param  {Function} resolve   Callback `function(resolvedResource) { ... }`
    * @api private
    */
-  decorator(resolve) {
-    resolve(resourceObject)
+  decorator() {
+
   },
 
   /**
@@ -166,8 +169,10 @@ var resourceTypeResolvers = {
    * @param  {Function} resolve   Callback `function(resolvedResource) { ... }`
    * @api private
    */
-  static(resolve) {
-    resolve(resourceObject)
+  static() {
+    let resourceObject = this[__resourceObject__]
+
+    return Promise.resolve(resourceObject)
   }
 }
 
@@ -182,13 +187,14 @@ var resourceTypeResolvers = {
  * @param {String} stringParam String to be processed
  * @api private
  */
-var resolveStringParam = stringParam => {
+var resolveStringParam = function(stringParam) {
+  let containerInstance = this[__containerInstance__]
   let actions = {
-    '@': value => {
+    '@': function(value) {
       return containerInstance.get(value)
     },
 
-    'default': value => {
+    'default': function(value) {
       return value
     }
   }
@@ -205,27 +211,30 @@ var resolveStringParam = stringParam => {
   return actions[resolverAction](resolverValue)
 }
 
-var applyArguments = () => {
-  return new Promise( (resolve, reject) => {
-    console.log(resourceArguments)
-    let resolvedArguments = resourceArguments.map(resolveStringParam)
+var applyResourceArguments = function() {
+  return new Promise((resolve, reject) => {
+    let resourceObject    = this[__resourceObject__]
+    let resourceArguments = this[__resourceArguments__]
+    let resolvedArguments = resourceArguments.map(resolveStringParam.bind(this))
+
     resolvedArguments.unshift(resourceObject)
 
     Promise.all(resolvedArguments).then(serviceArgs => {
       let Service = resourceObject.bind.apply(resourceObject, serviceArgs)
 
-      resolve(Service)
-    }).catch(reason => {
-      reject(reason)
-    })
+      return resolve(Service)
+    }).catch(
+      error => reject(error)
+    )
   })
 }
 
-var applyDecorators = () => {
-  return new Promise((resolve, reject) => {
-
-  })
-}
+// TODO
+// var applyDecorators = () => {
+//   return new Promise((resolve, reject) => {
+//
+//   })
+// }
 
 // TODO
 // var injectDependencies = () => {
@@ -257,7 +266,7 @@ class Provider
       throw new Error('Invalid container instance')
     }
 
-    containerInstance = container
+    this[__containerInstance__] = container
 
     if (typeof options.type === 'undefined') {
       options.type = 'service'
@@ -286,7 +295,7 @@ class Provider
       initializer = resourceTypeInitializers[options.type]
     }
 
-    initializer.apply(resourceTypeInitializers, [resource, args, options])
+    initializer.apply(this, [resource, args, options])
   }
 
   /**
@@ -297,8 +306,19 @@ class Provider
    * @param {Function} reject    Callback `function(error) { ... }`
    * @api public
    */
-  get(resolve, reject) {
-    resourceTypeResolvers[resourceType].apply(this, [resolve, reject])
+  get() {
+    return new Promise((resolve, reject) => {
+      let resourceType = this[__resourceType__]
+
+      resourceTypeResolvers[resourceType].apply(
+        this
+      ).then(
+        resource => {
+          return resolve(resource)
+      }).catch(
+        error => reject(error)
+      )
+    })
   }
 }
 

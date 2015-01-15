@@ -10,7 +10,7 @@ import Provider from './provider'
  * @type {String}
  * @api private
  */
-var containerId
+var __containerId__ = Symbol()
 
 /**
  * Provider Bag.
@@ -19,7 +19,7 @@ var containerId
  * @type {Object}
  * @api private
  */
-var providerBag
+var __repository__ = Symbol()
 
 /**
  * Loading Stack.
@@ -29,7 +29,7 @@ var providerBag
  * @type {Array}
  * @api private
  */
-var loadingStack
+var __loadingStack__ = Symbol()
 
 /**
  * Pushes a resource ID into the loadingStack.
@@ -37,7 +37,9 @@ var loadingStack
  * @param {String} id Resource ID
  * @api private
  */
-var addToLoadingStack = id => {
+var addToLoadingStack = function(container, id) {
+  let loadingStack = container[__loadingStack__]
+
   loadingStack.push(id)
 }
 
@@ -47,10 +49,13 @@ var addToLoadingStack = id => {
  * @param {String} id Resource ID
  * @api private
  */
-var removeFromLoadingStack = id => {
-  if (!isInLoadingStack(id)) {
+var removeFromLoadingStack = function(container, id) {
+  let loadingStack = container[__loadingStack__]
+
+  if (!isInLoadingStack(container, id)) {
     return
   }
+
 
   loadingStack.splice(loadingStack.indexOf(id), 1)
 }
@@ -61,7 +66,9 @@ var removeFromLoadingStack = id => {
  * @param {String} id Resource ID
  * @api private
  */
-var isInLoadingStack = id => {
+var isInLoadingStack = function(container, id) {
+  let loadingStack = container[__loadingStack__]
+
   return loadingStack.indexOf(id) !== -1
 }
 
@@ -73,9 +80,9 @@ var isInLoadingStack = id => {
 class Cation
 {
   constructor({ id } = {}) {
-    containerId  = id
-    providerBag  = {}
-    loadingStack = []
+    this[__containerId__]  = id
+    this[__repository__]   = {}
+    this[__loadingStack__] = []
 
     this.register('container', this, null, {
       type: 'static'
@@ -89,7 +96,7 @@ class Cation
    * @api public
    */
   getId() {
-    return containerId
+    return this[__containerId__]
   }
 
   /**
@@ -109,19 +116,23 @@ class Cation
    * @api public
    */
   register(id, resource, args=[], options={}) {
-    if (!id) {
-      throw new Error('`id` is required')
-    }
+    return new Promise((resolve, reject) => {
+      if (!id) {
+        return reject(new Error('`id` is required'))
+      }
 
-    if (!resource) {
-      throw new Error('`resource` is required')
-    }
+      if (!resource) {
+        return reject(new Error('`resource` is required'))
+      }
 
-    if (this.has(id)) {
-      throw new Error(`There's already a resource registered as "${id}"`)
-    }
+      if (this.has(id)) {
+        return reject(new Error(`There's already a resource registered as "${id}"`))
+      }
 
-    providerBag[id] = new Provider(this, resource, args, options)
+      this[__repository__][id] = new Provider(this, resource, args, options)
+
+      return resolve()
+    })
   }
 
   /**
@@ -132,30 +143,28 @@ class Cation
    * @api public
    */
   get(id) {
-    let providerPromise = new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       if (!this.has(id)) {
         return reject(new Error(`"${id}" resource not found`))
       }
 
-      if (isInLoadingStack(id)) {
+      if (isInLoadingStack(this, id)) {
         return reject(new Error(`Error loading "${id}". Circular reference detected`))
       }
 
-      addToLoadingStack(id)
-      providerBag[id].get(resolve, reject)
+      let resourceProvider = this[__repository__][id]
+      addToLoadingStack(this, id)
+
+      resourceProvider.get().then(resource => {
+        removeFromLoadingStack(this, id)
+
+        return resolve(resource)
+      }).catch(error => {
+        removeFromLoadingStack(this, id)
+
+        return reject(error)
+      })
     })
-
-    providerPromise.then(providedResource => {
-      removeFromLoadingStack(id)
-
-      return providedResource
-    }).catch(error => {
-      removeFromLoadingStack(id)
-
-      return error
-    })
-
-    return providerPromise
   }
 
   /**
@@ -166,7 +175,7 @@ class Cation
    * @api public
    */
   has(id) {
-    if (providerBag.hasOwnProperty(id)) {
+    if (this[__repository__].hasOwnProperty(id)) {
       return true
     }
 
@@ -184,7 +193,7 @@ class Cation
       return
     }
 
-    delete providerBag[id]
+    delete this[__repository__][id]
   }
 
 }

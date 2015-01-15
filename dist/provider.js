@@ -27,7 +27,7 @@ var _extends = function (target) {
  * @var {Cation}
  * @api private
  */
-var containerInstance;
+var __containerInstance__ = Symbol();
 
 /**
  * Resource Object.
@@ -36,7 +36,7 @@ var containerInstance;
  * @var {mixed}
  * @api private
  */
-var resourceObject;
+var __resourceObject__ = Symbol();
 
 /**
  * Resource Arguments.
@@ -46,7 +46,7 @@ var resourceObject;
  * @var {Array}
  * @api private
  */
-var resourceArguments;
+var __resourceArguments__ = Symbol();
 
 /**
  * Resource Type.
@@ -55,7 +55,7 @@ var resourceArguments;
  * @type {String}
  * @api private
  */
-var resourceType;
+var __resourceType__ = Symbol();
 
 /**
  * Is Singleton.
@@ -64,7 +64,7 @@ var resourceType;
  * @type {Boolean}
  * @api private
  */
-var isSingleton;
+var __isSingleton__ = Symbol();
 
 /**
  * TODO
@@ -85,7 +85,7 @@ var isSingleton;
  * @type {Array}
  * @api private
  */
-var decoratorsToApply;
+var __decoratorsToApply__ = Symbol();
 
 /**
  * Resource Instance.
@@ -94,7 +94,7 @@ var decoratorsToApply;
  * @type {mixed}
  * @api private
  */
-var resourceInstance;
+var __resourceInstance__ = Symbol();
 
 /**
  * Functions that initialize the Provider, depending on the resource type.
@@ -114,12 +114,12 @@ var resourceTypeInitializers = {
    * @api private
    */
   "default": function _default(resource, args, options) {
-    resourceObject = resource;
-    resourceArguments = args;
-    resourceType = options.type;
-    isSingleton = options.singleton;
+    this[__resourceObject__] = resource;
+    this[__resourceArguments__] = args;
+    this[__resourceType__] = options.type;
+    this[__isSingleton__] = options.singleton;
     // TODO entitiesToInject  = options.inject
-    decoratorsToApply = options.decorators;
+    this[__decoratorsToApply__] = options.decorators;
   }
 };
 
@@ -144,17 +144,21 @@ var resourceTypeResolvers = {
    * @param  {Function} resolve   Callback `function(resolvedResource) { ... }`
    * @api private
    */
-  service: function service(resolve, reject) {
+  service: function service() {
+    var _this = this;
+    var resourceInstance = this[__resourceInstance__];
+    var isSingleton = this[__isSingleton__];
+
     if (isSingleton && typeof resourceInstance !== "undefined") {
-      return resolve(resourceInstance);
+      return Promise.resolve(resourceInstance);
     }
 
-    applyArguments().then(function (Service) {
-      resourceInstance = new Service();
+    var applyArgsPromise = applyResourceArguments.apply(this);
 
-      return resolve(resourceInstance);
-    })["catch"](function (reason) {
-      return reject(reason);
+    return applyArgsPromise.then(function (Service) {
+      _this[__resourceInstance__] = new Service();
+
+      return _this[__resourceInstance__];
     });
   },
 
@@ -164,7 +168,7 @@ var resourceTypeResolvers = {
    * @param  {Function} resolve   Callback `function(resolvedResource) { ... }`
    * @api private
    */
-  factory: function factory(resolve) {},
+  factory: function factory() {},
 
   /**
    * Decorator type Resolver.
@@ -172,9 +176,7 @@ var resourceTypeResolvers = {
    * @param  {Function} resolve   Callback `function(resolvedResource) { ... }`
    * @api private
    */
-  decorator: function decorator(resolve) {
-    resolve(resourceObject);
-  },
+  decorator: function decorator() {},
 
   /**
    * Static type Resolver.
@@ -182,8 +184,10 @@ var resourceTypeResolvers = {
    * @param  {Function} resolve   Callback `function(resolvedResource) { ... }`
    * @api private
    */
-  "static": function _static(resolve) {
-    resolve(resourceObject);
+  "static": function _static() {
+    var resourceObject = this[__resourceObject__];
+
+    return Promise.resolve(resourceObject);
   }
 };
 
@@ -199,6 +203,7 @@ var resourceTypeResolvers = {
  * @api private
  */
 var resolveStringParam = function (stringParam) {
+  var containerInstance = this[__containerInstance__];
   var actions = {
     "@": function (value) {
       return containerInstance.get(value);
@@ -221,25 +226,31 @@ var resolveStringParam = function (stringParam) {
   return actions[resolverAction](resolverValue);
 };
 
-var applyArguments = function () {
+var applyResourceArguments = function () {
+  var _this2 = this;
   return new Promise(function (resolve, reject) {
-    console.log(resourceArguments);
-    var resolvedArguments = resourceArguments.map(resolveStringParam);
+    var resourceObject = _this2[__resourceObject__];
+    var resourceArguments = _this2[__resourceArguments__];
+    var resolvedArguments = resourceArguments.map(resolveStringParam.bind(_this2));
+
     resolvedArguments.unshift(resourceObject);
 
     Promise.all(resolvedArguments).then(function (serviceArgs) {
       var Service = resourceObject.bind.apply(resourceObject, serviceArgs);
 
-      resolve(Service);
-    })["catch"](function (reason) {
-      reject(reason);
+      return resolve(Service);
+    })["catch"](function (error) {
+      return reject(error);
     });
   });
 };
 
-var applyDecorators = function () {
-  return new Promise(function (resolve, reject) {});
-};
+// TODO
+// var applyDecorators = () => {
+//   return new Promise((resolve, reject) => {
+//
+//   })
+// }
 
 // TODO
 // var injectDependencies = () => {
@@ -270,7 +281,7 @@ var Provider = (function () {
       throw new Error("Invalid container instance");
     }
 
-    containerInstance = container;
+    this[__containerInstance__] = container;
 
     if (typeof options.type === "undefined") {
       options.type = "service";
@@ -299,7 +310,7 @@ var Provider = (function () {
       initializer = resourceTypeInitializers[options.type];
     }
 
-    initializer.apply(resourceTypeInitializers, [resource, args, options]);
+    initializer.apply(this, [resource, args, options]);
   }
 
   _prototypeProperties(Provider, null, {
@@ -313,8 +324,17 @@ var Provider = (function () {
        * @param {Function} reject    Callback `function(error) { ... }`
        * @api public
        */
-      value: function (resolve, reject) {
-        resourceTypeResolvers[resourceType].apply(this, [resolve, reject]);
+      value: function () {
+        var _this3 = this;
+        return new Promise(function (resolve, reject) {
+          var resourceType = _this3[__resourceType__];
+
+          resourceTypeResolvers[resourceType].apply(_this3).then(function (resource) {
+            return resolve(resource);
+          })["catch"](function (error) {
+            return reject(error);
+          });
+        });
       },
       writable: true,
       enumerable: true,

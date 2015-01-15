@@ -33,10 +33,11 @@ gulp.task('mocha', function(){
   return gulp
     .src('test/index.js')
     .pipe(mocha({
-      reporter    : 'spec',
+      reporter    : 'nyan',
       ignoreLeaks : true,
       asyncOnly   : true,
-      timeout     : 5000
+      timeout     : 5000,
+      debug       : true
     }).on('error', function(err) {
       console.log(err.toString())
 

@@ -21,7 +21,7 @@ var Provider = _interopRequire(require("./provider"));
  * @type {String}
  * @api private
  */
-var containerId;
+var __containerId__ = Symbol();
 
 /**
  * Provider Bag.
@@ -30,7 +30,7 @@ var containerId;
  * @type {Object}
  * @api private
  */
-var providerBag;
+var __repository__ = Symbol();
 
 /**
  * Loading Stack.
@@ -40,7 +40,7 @@ var providerBag;
  * @type {Array}
  * @api private
  */
-var loadingStack;
+var __loadingStack__ = Symbol();
 
 /**
  * Pushes a resource ID into the loadingStack.
@@ -48,7 +48,9 @@ var loadingStack;
  * @param {String} id Resource ID
  * @api private
  */
-var addToLoadingStack = function (id) {
+var addToLoadingStack = function (container, id) {
+  var loadingStack = container[__loadingStack__];
+
   loadingStack.push(id);
 };
 
@@ -58,10 +60,13 @@ var addToLoadingStack = function (id) {
  * @param {String} id Resource ID
  * @api private
  */
-var removeFromLoadingStack = function (id) {
-  if (!isInLoadingStack(id)) {
+var removeFromLoadingStack = function (container, id) {
+  var loadingStack = container[__loadingStack__];
+
+  if (!isInLoadingStack(container, id)) {
     return;
   }
+
 
   loadingStack.splice(loadingStack.indexOf(id), 1);
 };
@@ -72,7 +77,9 @@ var removeFromLoadingStack = function (id) {
  * @param {String} id Resource ID
  * @api private
  */
-var isInLoadingStack = function (id) {
+var isInLoadingStack = function (container, id) {
+  var loadingStack = container[__loadingStack__];
+
   return loadingStack.indexOf(id) !== -1;
 };
 
@@ -85,9 +92,9 @@ var Cation = (function () {
   function Cation() {
     var _ref = arguments[0] === undefined ? {} : arguments[0];
     var id = _ref.id;
-    containerId = id;
-    providerBag = {};
-    loadingStack = [];
+    this[__containerId__] = id;
+    this[__repository__] = {};
+    this[__loadingStack__] = [];
 
     this.register("container", this, null, {
       type: "static"
@@ -104,7 +111,7 @@ var Cation = (function () {
        * @api public
        */
       value: function () {
-        return containerId;
+        return this[__containerId__];
       },
       writable: true,
       enumerable: true,
@@ -129,21 +136,26 @@ var Cation = (function () {
        * @api public
        */
       value: function (id, resource) {
+        var _this = this;
         var args = arguments[2] === undefined ? [] : arguments[2];
         var options = arguments[3] === undefined ? {} : arguments[3];
-        if (!id) {
-          throw new Error("`id` is required");
-        }
+        return new Promise(function (resolve, reject) {
+          if (!id) {
+            return reject(new Error("`id` is required"));
+          }
 
-        if (!resource) {
-          throw new Error("`resource` is required");
-        }
+          if (!resource) {
+            return reject(new Error("`resource` is required"));
+          }
 
-        if (this.has(id)) {
-          throw new Error("There's already a resource registered as \"" + id + "\"");
-        }
+          if (_this.has(id)) {
+            return reject(new Error("There's already a resource registered as \"" + id + "\""));
+          }
 
-        providerBag[id] = new Provider(this, resource, args, options);
+          _this[__repository__][id] = new Provider(_this, resource, args, options);
+
+          return resolve();
+        });
       },
       writable: true,
       enumerable: true,
@@ -159,31 +171,29 @@ var Cation = (function () {
        * @api public
        */
       value: function (id) {
-        var _this = this;
-        var providerPromise = new Promise(function (resolve, reject) {
-          if (!_this.has(id)) {
+        var _this2 = this;
+        return new Promise(function (resolve, reject) {
+          if (!_this2.has(id)) {
             return reject(new Error("\"" + id + "\" resource not found"));
           }
 
-          if (isInLoadingStack(id)) {
+          if (isInLoadingStack(_this2, id)) {
             return reject(new Error("Error loading \"" + id + "\". Circular reference detected"));
           }
 
-          addToLoadingStack(id);
-          providerBag[id].get(resolve, reject);
+          var resourceProvider = _this2[__repository__][id];
+          addToLoadingStack(_this2, id);
+
+          resourceProvider.get().then(function (resource) {
+            removeFromLoadingStack(_this2, id);
+
+            return resolve(resource);
+          })["catch"](function (error) {
+            removeFromLoadingStack(_this2, id);
+
+            return reject(error);
+          });
         });
-
-        providerPromise.then(function (providedResource) {
-          removeFromLoadingStack(id);
-
-          return providedResource;
-        })["catch"](function (error) {
-          removeFromLoadingStack(id);
-
-          return error;
-        });
-
-        return providerPromise;
       },
       writable: true,
       enumerable: true,
@@ -199,7 +209,7 @@ var Cation = (function () {
        * @api public
        */
       value: function (id) {
-        if (providerBag.hasOwnProperty(id)) {
+        if (this[__repository__].hasOwnProperty(id)) {
           return true;
         }
 
@@ -222,7 +232,7 @@ var Cation = (function () {
           return;
         }
 
-        delete providerBag[id];
+        delete this[__repository__][id];
       },
       writable: true,
       enumerable: true,

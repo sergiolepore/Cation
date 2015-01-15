@@ -8,7 +8,7 @@ describe('Create instance:', function(){
     })
 
     expect(
-      container.containerId
+      container.__containerId__
     ).to.be.equal(undefined)
 
     done()
