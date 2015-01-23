@@ -30,10 +30,15 @@ gulp.task('6to5', function() {
 
 /* Mocha Unit Tests */
 gulp.task('mocha', function(){
+  var reporter = 'spec'
+
+  if (watching) {
+    reporter = 'nyan'
+  }
   return gulp
     .src('test/index.js')
     .pipe(mocha({
-      reporter    : 'nyan',
+      reporter    : reporter,
       ignoreLeaks : true,
       asyncOnly   : true,
       timeout     : 5000,
