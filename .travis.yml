@@ -13,3 +13,11 @@ install:
 
 script:
   - npm test
+
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/d696c168d603e493c877
+    on_success: always  # options: [always|never|change] default: always
+    on_failure: always  # options: [always|never|change] default: always
+    on_start: false     # default: false
