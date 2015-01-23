@@ -125,6 +125,10 @@ class Cation
         options.args = []
       }
 
+      if (typeof options.decorators === 'undefined') {
+        options.decorators = []
+      }
+
       if (!this.hasProvider(options.type)) {
         return reject(new Error(`Unknown type: "${options.type}"`))
       }

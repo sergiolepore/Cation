@@ -157,6 +157,10 @@ var Cation = (function () {
             options.args = [];
           }
 
+          if (typeof options.decorators === "undefined") {
+            options.decorators = [];
+          }
+
           if (!_this.hasProvider(options.type)) {
             return reject(new Error("Unknown type: \"" + options.type + "\""));
           }
