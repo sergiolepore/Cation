@@ -52,10 +52,9 @@ describe('Register a resource on the container:', function(){
   it('should return an error if `type` is not valid', function(done) {
     var resourceId  = 'resource-id'
     var options     = { type: 'InvalidType' }
-    var serviceArgs // nothing to bind. no problem
 
     expect(
-      container.register(resourceId, DemoService, serviceArgs, options)
+      container.register(resourceId, DemoService, options)
     ).to.be.rejectedWith(
       'Unknown type: "'+options.type+'"'
     ).notify(done)
@@ -64,10 +63,9 @@ describe('Register a resource on the container:', function(){
   it('should not return an error if `type` is valid', function(done) {
     var resourceId  = 'resource-id'
     var options     = { type: 'static' }
-    var serviceArgs // nothing to bind. no problem
 
     expect(
-      container.register(resourceId, DemoService, serviceArgs, options)
+      container.register(resourceId, DemoService, options)
     ).to.not.be.rejectedWith(
       'Unknown type: "'+options.type+'"'
     ).notify(done)
@@ -88,7 +86,7 @@ describe('Register a resource on the container:', function(){
   it('should register a resource as `service`', function(done) {
     var serviceId = 'resource-id'
 
-    container.register(serviceId, DemoService, null, {
+    container.register(serviceId, DemoService, {
       type: 'service'
     })
 
@@ -102,7 +100,7 @@ describe('Register a resource on the container:', function(){
   it('should register a resource as `factory`', function(done) {
     var factoryId = 'resource-id'
 
-    container.register(factoryId, DemoService, null, {
+    container.register(factoryId, DemoService, {
       type: 'factory'
     }).then(function() {
       expect(
@@ -115,26 +113,10 @@ describe('Register a resource on the container:', function(){
     })
   })
 
-  it('should register a resource as `decorator`', function(done) {
-    var decoratorId = 'resource-id'
-
-    container.register(decoratorId, DemoService, null, {
-      type: 'decorator'
-    }).then(function() {
-      expect(
-        container.has(decoratorId)
-      ).to.be.equal(true)
-
-      done()
-    }).catch(function(error) {
-      done(error)
-    })
-  })
-
   it('should register a resource as `static`', function(done) {
     var staticId = 'resource-id'
 
-    container.register(staticId, DemoService, null, {
+    container.register(staticId, DemoService, {
       type: 'static'
     }).then(function() {
       expect(

@@ -1,7 +1,11 @@
 /*! Module dependencies */
-import Provider from './provider'
+import ServiceProvider      from './providers/serviceprovider'
+import FactoryProvider      from './providers/factoryprovider'
+import StaticProvider       from './providers/staticprovider'
+import * as loadingStack    from './helpers/loadingstack'
+import * as decoratorUtils  from './helpers/decorator'
 
-/*! Module Variables */
+/*! Private definitions */
 
 /**
  * Container ID.
@@ -13,78 +17,62 @@ import Provider from './provider'
 var __containerId__ = Symbol()
 
 /**
- * Provider Bag.
+ * Provider Repository.
  * An object used to store all registered resources, with their own config and ID.
  *
  * @type {Object}
  * @api private
  */
-var __repository__ = Symbol()
+var __providerRepository__ = Symbol()
 
 /**
- * Loading Stack.
- * An array containing the IDs of the resources being currently loaded.
- * Useful to track circular references.
+ * Instance Cache.
+ * An object used to store all singleton instances.
  *
- * @type {Array}
+ * @type {Object}
  * @api private
  */
-var __loadingStack__ = Symbol()
+var __instanceCache__ = Symbol()
 
 /**
- * Pushes a resource ID into the loadingStack.
+ * Provider Map.
+ * An object used to map the provider names and classes.
  *
- * @param {String} id Resource ID
+ * @type {Object}
  * @api private
  */
-var addToLoadingStack = function(container, id) {
-  let loadingStack = container[__loadingStack__]
-
-  loadingStack.push(id)
-}
+var __providerMap__ = Symbol()
 
 /**
- * Removes a resource ID from the loadingStack.
+ * Decorator Map.
+ * An object used to map the decorator names and functions.
  *
- * @param {String} id Resource ID
+ * @type {Object}
  * @api private
  */
-var removeFromLoadingStack = function(container, id) {
-  let loadingStack = container[__loadingStack__]
-
-  if (!isInLoadingStack(container, id)) {
-    return
-  }
-
-
-  loadingStack.splice(loadingStack.indexOf(id), 1)
-}
-
-/**
- * Checks if a given resource ID is in the loadingStack.
- *
- * @param {String} id Resource ID
- * @api private
- */
-var isInLoadingStack = function(container, id) {
-  let loadingStack = container[__loadingStack__]
-
-  return loadingStack.indexOf(id) !== -1
-}
+var __decoratorMap__ = Symbol()
 
 /*! ========================================================================= */
 
 /**
- * Cation.
+ * Cation
  */
 class Cation
 {
   constructor({ id } = {}) {
-    this[__containerId__]  = id
-    this[__repository__]   = {}
-    this[__loadingStack__] = []
+    this[__containerId__]         = id
+    this[__providerRepository__]  = {}
+    this[__instanceCache__]       = {}
+    this[__providerMap__]         = {}
+    this[__decoratorMap__]        = {}
 
-    this.register('container', this, null, {
+    loadingStack.init(this)
+
+    this.addProvider('service', ServiceProvider)
+    this.addProvider('factory', FactoryProvider)
+    this.addProvider('static', StaticProvider)
+
+    this.register('container', this, {
       type: 'static'
     })
   }
@@ -104,18 +92,18 @@ class Cation
    *
    * @param {String}  id        Resource ID. Required.
    * @param {mixed}   resource  The resource to be registered. Required.
-   * @param {Array}   args      Arguments to be applied to the resource when retrieved (if resource is a function). Optional.
    * @param {Object}  options   Object with options. Optional.
    *
    *   Options:
-   *     - type: (string) resource type (service, factory, decorator, static).
+   *     - type: (string) resource type (service, factory, stati or a custom type).
    *     - singleton: (boolean) singleton behaviour.
-   *     - inject: (array) ids of already registered resources, to be injected on the resource context.
+   *     - args: (array) Arguments to be applied to the resource when retrieved (if resource is a function). Optional.
    *     - decorators: (array) ids of already registered decorators. Will be applied in order to the resource, when retrieved.
    *
+   * @return {Promise}
    * @api public
    */
-  register(id, resource, args=[], options={}) {
+  register(id, resource, options={}) {
     return new Promise((resolve, reject) => {
       if (!id) {
         return reject(new Error('`id` is required'))
@@ -129,7 +117,21 @@ class Cation
         return reject(new Error(`There's already a resource registered as "${id}"`))
       }
 
-      this[__repository__][id] = new Provider(this, resource, args, options)
+      if (typeof options.type === 'undefined') {
+        options.type = 'service'
+      }
+
+      if (typeof options.args === 'undefined') {
+        options.args = []
+      }
+
+      if (!this.hasProvider(options.type)) {
+        return reject(new Error(`Unknown type: "${options.type}"`))
+      }
+
+      let Provider = this[__providerMap__][options.type]
+
+      this[__providerRepository__][id] = new Provider(this, resource, options)
 
       return resolve()
     })
@@ -148,19 +150,54 @@ class Cation
         return reject(new Error(`"${id}" resource not found`))
       }
 
-      if (isInLoadingStack(this, id)) {
+      if (loadingStack.has(this, id)) {
         return reject(new Error(`Error loading "${id}". Circular reference detected`))
       }
 
-      let resourceProvider = this[__repository__][id]
-      addToLoadingStack(this, id)
+      let provider    = this[__providerRepository__][id]
+      let isSingleton = provider.options.isSingleton
 
-      resourceProvider.get().then(resource => {
-        removeFromLoadingStack(this, id)
+      if (isSingleton && this.isCached(id)) {
+        return resolve(this[__instanceCache__][id])
+      }
 
-        return resolve(resource)
-      }).catch(error => {
-        removeFromLoadingStack(this, id)
+      loadingStack.push(this, id)
+
+      provider.get().then(resource => {
+        // remove from loading stack. No more circular reference prevention
+        loadingStack.remove(this, id)
+
+        return resource
+      }).then(resource => {
+        // apply decorators
+        let decoratorNames = provider.options.decorators
+
+        if (!decoratorNames.length) {
+          return resource
+        }
+
+        let decoratorFunctions = decoratorNames.map(name => {
+          if (this.hasDecorator(name)) {
+            return this[__decoratorMap__][name]
+          }
+        })
+
+        if (!decoratorFunctions.length) {
+          return resource
+        }
+
+        return decoratorFunctions.reduce(decoratorUtils.reducer, resource)
+      }).then(resource => {
+        // store instance in cache if singleton
+        if (isSingleton) {
+          this[__instanceCache__][id] = resource
+        }
+
+        return resource
+      }).then(
+        resource => resolve(resource)
+      ).catch(error => {
+        loadingStack.remove(this, id)
 
         return reject(error)
       })
@@ -175,7 +212,7 @@ class Cation
    * @api public
    */
   has(id) {
-    if (this[__repository__].hasOwnProperty(id)) {
+    if (this[__providerRepository__].hasOwnProperty(id)) {
       return true
     }
 
@@ -193,9 +230,122 @@ class Cation
       return
     }
 
-    delete this[__repository__][id]
+    delete this[__providerRepository__][id]
   }
 
+  /**
+   * Registers a resource provider.
+   *
+   * @param {String}   name             Provider name.
+   * @param {Function} providerFunction Provider function.
+   * @api public
+   */
+  addProvider(name, providerFunction) {
+    let providerMap = this[__providerMap__]
+
+    if (this.hasProvider(name)) {
+      return
+    }
+
+    providerMap[name] = providerFunction
+  }
+
+  /**
+   * Checks if a given provider is registered.
+   *
+   * @param {String}  name  Provider name.
+   * @return {Boolean}
+   * @api public
+   */
+  hasProvider(name) {
+    let providerMap = this[__providerMap__]
+
+    return providerMap.hasOwnProperty(name)
+  }
+
+  /**
+   * Removes a given provider.
+   *
+   * @param {String}  name  Provider name.
+   * @api public
+   */
+  removeProvider(name) {
+    let providerMap = this[__providerMap__]
+
+    if (!this.hasProvider(name)) {
+      return
+    }
+
+    delete providerMap[name]
+  }
+
+  /**
+   * Registers a resource decorator.
+   *
+   * @param {String}   name               Decorator name.
+   * @param {Function} decoratorFunction  Decorator function.
+   * @api public
+   */
+  addDecorator(name, decoratorFunction) {
+    let decoratorMap = this[__decoratorMap__]
+
+    if (this.hasDecorator(name)) {
+      return
+    }
+
+    decoratorMap[name] = decoratorFunction
+  }
+
+  /**
+   * Checks if a given decorator is registered.
+   *
+   * @param {String}  name  Decorator name.
+   * @api public
+   */
+  hasDecorator(name) {
+    let decoratorMap = this[__decoratorMap__]
+
+    return decoratorMap.hasOwnProperty(name)
+  }
+
+  /**
+   * Removes a given decorator.
+   *
+   * @param {String}  name  Decorator name.
+   * @api public
+   */
+  removeDecorator(name) {
+    let decoratorMap = this[__decoratorMap__]
+
+    if (!this.hasDecorator(name)) {
+      return
+    }
+
+    delete decoratorMap[name]
+  }
+
+  /**
+   * Checks if a resource is cached.
+   * Only instances from services declared as `singleton` will be stored in cache.
+   *
+   * @param {String}  id  Resource ID.
+   * @return {Boolean}
+   * @api public
+   */
+  isCached(id) {
+    let instanceCache = this[__instanceCache__]
+
+    return instanceCache.hasOwnProperty(id)
+  }
+
+  /**
+   * Removes all singleton instances from cache.
+   *
+   * @api public
+   */
+  clearCache() {
+    this[__instanceCache__] = {}
+  }
 }
 
 // And here... we... GO.

@@ -5,14 +5,28 @@ var _prototypeProperties = function (child, staticProps, instanceProps) {
   if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
 };
 
+var _interopRequireWildcard = function (obj) {
+  return obj && obj.constructor === Object ? obj : {
+    "default": obj
+  };
+};
+
 var _interopRequire = function (obj) {
   return obj && (obj["default"] || obj);
 };
 
 /*! Module dependencies */
-var Provider = _interopRequire(require("./provider"));
+var ServiceProvider = _interopRequire(require("./providers/serviceprovider"));
 
-/*! Module Variables */
+var FactoryProvider = _interopRequire(require("./providers/factoryprovider"));
+
+var StaticProvider = _interopRequire(require("./providers/staticprovider"));
+
+var loadingStack = _interopRequireWildcard(require("./helpers/loadingstack"));
+
+var decoratorUtils = _interopRequireWildcard(require("./helpers/decorator"));
+
+/*! Private definitions */
 
 /**
  * Container ID.
@@ -24,79 +38,63 @@ var Provider = _interopRequire(require("./provider"));
 var __containerId__ = Symbol();
 
 /**
- * Provider Bag.
+ * Provider Repository.
  * An object used to store all registered resources, with their own config and ID.
  *
  * @type {Object}
  * @api private
  */
-var __repository__ = Symbol();
+var __providerRepository__ = Symbol();
 
 /**
- * Loading Stack.
- * An array containing the IDs of the resources being currently loaded.
- * Useful to track circular references.
+ * Instance Cache.
+ * An object used to store all singleton instances.
  *
- * @type {Array}
+ * @type {Object}
  * @api private
  */
-var __loadingStack__ = Symbol();
+var __instanceCache__ = Symbol();
 
 /**
- * Pushes a resource ID into the loadingStack.
+ * Provider Map.
+ * An object used to map the provider names and classes.
  *
- * @param {String} id Resource ID
+ * @type {Object}
  * @api private
  */
-var addToLoadingStack = function (container, id) {
-  var loadingStack = container[__loadingStack__];
-
-  loadingStack.push(id);
-};
+var __providerMap__ = Symbol();
 
 /**
- * Removes a resource ID from the loadingStack.
+ * Decorator Map.
+ * An object used to map the decorator names and functions.
  *
- * @param {String} id Resource ID
+ * @type {Object}
  * @api private
  */
-var removeFromLoadingStack = function (container, id) {
-  var loadingStack = container[__loadingStack__];
-
-  if (!isInLoadingStack(container, id)) {
-    return;
-  }
-
-
-  loadingStack.splice(loadingStack.indexOf(id), 1);
-};
-
-/**
- * Checks if a given resource ID is in the loadingStack.
- *
- * @param {String} id Resource ID
- * @api private
- */
-var isInLoadingStack = function (container, id) {
-  var loadingStack = container[__loadingStack__];
-
-  return loadingStack.indexOf(id) !== -1;
-};
+var __decoratorMap__ = Symbol();
 
 /*! ========================================================================= */
 
 /**
- * Cation.
+ * Cation
  */
 var Cation = (function () {
   function Cation() {
     var _ref = arguments[0] === undefined ? {} : arguments[0];
     var id = _ref.id;
     this[__containerId__] = id;
-    this[__repository__] = {};
-    this[__loadingStack__] = [];
+    this[__providerRepository__] = {};
+    this[__instanceCache__] = {};
+    this[__providerMap__] = {};
+    this[__decoratorMap__] = {};
 
-    this.register("container", this, null, {
+    loadingStack.init(this);
+
+    this.addProvider("service", ServiceProvider);
+    this.addProvider("factory", FactoryProvider);
+    this.addProvider("static", StaticProvider);
+
+    this.register("container", this, {
       type: "static"
     });
   }
@@ -110,7 +108,7 @@ var Cation = (function () {
        * @return {String}
        * @api public
        */
-      value: function () {
+      value: function getId() {
         return this[__containerId__];
       },
       writable: true,
@@ -124,21 +122,20 @@ var Cation = (function () {
        *
        * @param {String}  id        Resource ID. Required.
        * @param {mixed}   resource  The resource to be registered. Required.
-       * @param {Array}   args      Arguments to be applied to the resource when retrieved (if resource is a function). Optional.
        * @param {Object}  options   Object with options. Optional.
        *
        *   Options:
-       *     - type: (string) resource type (service, factory, decorator, static).
+       *     - type: (string) resource type (service, factory, stati or a custom type).
        *     - singleton: (boolean) singleton behaviour.
-       *     - inject: (array) ids of already registered resources, to be injected on the resource context.
+       *     - args: (array) Arguments to be applied to the resource when retrieved (if resource is a function). Optional.
        *     - decorators: (array) ids of already registered decorators. Will be applied in order to the resource, when retrieved.
        *
+       * @return {Promise}
        * @api public
        */
-      value: function (id, resource) {
+      value: function register(id, resource) {
         var _this = this;
-        var args = arguments[2] === undefined ? [] : arguments[2];
-        var options = arguments[3] === undefined ? {} : arguments[3];
+        var options = arguments[2] === undefined ? {} : arguments[2];
         return new Promise(function (resolve, reject) {
           if (!id) {
             return reject(new Error("`id` is required"));
@@ -152,7 +149,21 @@ var Cation = (function () {
             return reject(new Error("There's already a resource registered as \"" + id + "\""));
           }
 
-          _this[__repository__][id] = new Provider(_this, resource, args, options);
+          if (typeof options.type === "undefined") {
+            options.type = "service";
+          }
+
+          if (typeof options.args === "undefined") {
+            options.args = [];
+          }
+
+          if (!_this.hasProvider(options.type)) {
+            return reject(new Error("Unknown type: \"" + options.type + "\""));
+          }
+
+          var Provider = _this[__providerMap__][options.type];
+
+          _this[__providerRepository__][id] = new Provider(_this, resource, options);
 
           return resolve();
         });
@@ -170,26 +181,61 @@ var Cation = (function () {
        * @return {Promise}
        * @api public
        */
-      value: function (id) {
+      value: function get(id) {
         var _this2 = this;
         return new Promise(function (resolve, reject) {
           if (!_this2.has(id)) {
             return reject(new Error("\"" + id + "\" resource not found"));
           }
 
-          if (isInLoadingStack(_this2, id)) {
+          if (loadingStack.has(_this2, id)) {
             return reject(new Error("Error loading \"" + id + "\". Circular reference detected"));
           }
 
-          var resourceProvider = _this2[__repository__][id];
-          addToLoadingStack(_this2, id);
+          var provider = _this2[__providerRepository__][id];
+          var isSingleton = provider.options.isSingleton;
 
-          resourceProvider.get().then(function (resource) {
-            removeFromLoadingStack(_this2, id);
+          if (isSingleton && _this2.isCached(id)) {
+            return resolve(_this2[__instanceCache__][id]);
+          }
 
+          loadingStack.push(_this2, id);
+
+          provider.get().then(function (resource) {
+            // remove from loading stack. No more circular reference prevention
+            loadingStack.remove(_this2, id);
+
+            return resource;
+          }).then(function (resource) {
+            // apply decorators
+            var decoratorNames = provider.options.decorators;
+
+            if (!decoratorNames.length) {
+              return resource;
+            }
+
+            var decoratorFunctions = decoratorNames.map(function (name) {
+              if (_this2.hasDecorator(name)) {
+                return _this2[__decoratorMap__][name];
+              }
+            });
+
+            if (!decoratorFunctions.length) {
+              return resource;
+            }
+
+            return decoratorFunctions.reduce(decoratorUtils.reducer, resource);
+          }).then(function (resource) {
+            // store instance in cache if singleton
+            if (isSingleton) {
+              _this2[__instanceCache__][id] = resource;
+            }
+
+            return resource;
+          }).then(function (resource) {
             return resolve(resource);
           })["catch"](function (error) {
-            removeFromLoadingStack(_this2, id);
+            loadingStack.remove(_this2, id);
 
             return reject(error);
           });
@@ -208,8 +254,8 @@ var Cation = (function () {
        * @return {Boolean}
        * @api public
        */
-      value: function (id) {
-        if (this[__repository__].hasOwnProperty(id)) {
+      value: function has(id) {
+        if (this[__providerRepository__].hasOwnProperty(id)) {
           return true;
         }
 
@@ -227,12 +273,166 @@ var Cation = (function () {
        * @param {String}  id  Resource ID.
        * @api public
        */
-      value: function (id) {
+      value: function remove(id) {
         if (!this.has(id)) {
           return;
         }
 
-        delete this[__repository__][id];
+        delete this[__providerRepository__][id];
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    addProvider: {
+
+      /**
+       * Registers a resource provider.
+       *
+       * @param {String}   name             Provider name.
+       * @param {Function} providerFunction Provider function.
+       * @api public
+       */
+      value: function addProvider(name, providerFunction) {
+        var providerMap = this[__providerMap__];
+
+        if (this.hasProvider(name)) {
+          return;
+        }
+
+        providerMap[name] = providerFunction;
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    hasProvider: {
+
+      /**
+       * Checks if a given provider is registered.
+       *
+       * @param {String}  name  Provider name.
+       * @return {Boolean}
+       * @api public
+       */
+      value: function hasProvider(name) {
+        var providerMap = this[__providerMap__];
+
+        return providerMap.hasOwnProperty(name);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    removeProvider: {
+
+      /**
+       * Removes a given provider.
+       *
+       * @param {String}  name  Provider name.
+       * @api public
+       */
+      value: function removeProvider(name) {
+        var providerMap = this[__providerMap__];
+
+        if (!this.hasProvider(name)) {
+          return;
+        }
+
+        delete providerMap[name];
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    addDecorator: {
+
+      /**
+       * Registers a resource decorator.
+       *
+       * @param {String}   name               Decorator name.
+       * @param {Function} decoratorFunction  Decorator function.
+       * @api public
+       */
+      value: function addDecorator(name, decoratorFunction) {
+        var decoratorMap = this[__decoratorMap__];
+
+        if (this.hasDecorator(name)) {
+          return;
+        }
+
+        decoratorMap[name] = decoratorFunction;
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    hasDecorator: {
+
+      /**
+       * Checks if a given decorator is registered.
+       *
+       * @param {String}  name  Decorator name.
+       * @api public
+       */
+      value: function hasDecorator(name) {
+        var decoratorMap = this[__decoratorMap__];
+
+        return decoratorMap.hasOwnProperty(name);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    removeDecorator: {
+
+      /**
+       * Removes a given decorator.
+       *
+       * @param {String}  name  Decorator name.
+       * @api public
+       */
+      value: function removeDecorator(name) {
+        var decoratorMap = this[__decoratorMap__];
+
+        if (!this.hasDecorator(name)) {
+          return;
+        }
+
+        delete decoratorMap[name];
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    isCached: {
+
+      /**
+       * Checks if a resource is cached.
+       * Only instances from services declared as `singleton` will be stored in cache.
+       *
+       * @param {String}  id  Resource ID.
+       * @return {Boolean}
+       * @api public
+       */
+      value: function isCached(id) {
+        var instanceCache = this[__instanceCache__];
+
+        return instanceCache.hasOwnProperty(id);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    clearCache: {
+
+      /**
+       * Removes all singleton instances from cache.
+       *
+       * @api public
+       */
+      value: function clearCache() {
+        this[__instanceCache__] = {};
       },
       writable: true,
       enumerable: true,

@@ -6,7 +6,7 @@ describe('User-defined `static` resources:', function() {
     var container = new Cation();
     var value     = 'dd6cb472-4324-4439-9a1b-417d6f812002'
 
-    container.register('static-value', value, null, {
+    container.register('static-value', value, {
       type: 'static'
     })
 

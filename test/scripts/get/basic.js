@@ -25,7 +25,7 @@ describe('Container as a service:', function() {
     originalContainer.get(
       'container'
     ).then(function(retrievedContainer) {
-      return retrievedContainer.register('static-string', 'Lorem Ipsum Value', null, {
+      return retrievedContainer.register('static-string', 'Lorem Ipsum Value', {
         type : 'static'
       })
     }).then(function() {
@@ -62,8 +62,8 @@ describe('Retrieving invalid services:', function() {
     var Service1 = function() {}
     var Service2 = function() {}
 
-    var register1promise = container.register(resourceId1, Service1, ['@'+resourceId2])
-    var register2promise = container.register(resourceId2, Service2, ['@'+resourceId1])
+    var register1promise = container.register(resourceId1, Service1, { args: ['@'+resourceId2] })
+    var register2promise = container.register(resourceId2, Service2, { args: ['@'+resourceId1] })
 
     var getPromise = Promise.all([register1promise, register2promise]).then(function() {
       return container.get(resourceId1)
@@ -81,7 +81,7 @@ describe('Retrieving invalid services:', function() {
     var resourceId  = 'Service'
     var Service     = function() {}
 
-    var registerPromise = container.register(resourceId, Service, ['@'+resourceId])
+    var registerPromise = container.register(resourceId, Service, { args: ['@'+resourceId] })
 
     var getPromise = registerPromise.then(function() {
       return container.get(resourceId)

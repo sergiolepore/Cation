@@ -1,3 +1,3 @@
-require("6to5/register"); // load polyfills and stuff
+require("6to5/polyfill"); // load polyfills and stuff
 
 module.exports = require('./dist/cation.js');
