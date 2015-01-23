@@ -36,14 +36,14 @@ export function resolveDependencies(container, resourceArguments=[]) {
  * function will retrieve the service from the container.
  * Otherwise, it will return the initial value of the string argument.
  *
- * @param {Cation} container      A `Cation` instance.
- * @param {String} stringArgument String argument.
+ * @param {Cation} container  A `Cation` instance.
+ * @param {String} argument   String argument.
  * @api private
  */
-function resolveArgument(container, stringArgument) {
+function resolveArgument(container, argument) {
   let actions = {
     '@': function(value) {
-      // when stringArgument starts with `@`, it's a Resource Reference.
+      // when argument starts with `@`, it's a Resource Reference.
       return container.get(value)
     },
 
@@ -52,10 +52,19 @@ function resolveArgument(container, stringArgument) {
     }
   }
 
+  // we cant extract a service id reference from anything but a string
+  if (typeof argument !== 'string') {
+    return argument
+  }
+
+  // "something" -> [ 'something', '', 'something', index: 0, input: 'something' ]
+  // "@ServiceID" -> [ '@ServiceID', '@', 'ServiceID', index: 0, input: '@ServiceID' ]
+  // "\\@SomethingNotID" -> [ '\\@SomethingNotID', '\\', '@SomethingNotID', index: 0, input: '\\@SomethingNotID' ]
+  // "Not a @ServiceID" -> [ 'Not a @ServiceID', '', 'Not a @ServiceID', index: 0, input: 'Not a @ServiceID' ]
   let serviceIdRegex = /^([@|\\\\/(?=@)]?)(.+)$/
-  let matches        = serviceIdRegex.exec(stringArgument)
-  let resolverAction = matches[1]
-  let resolverValue  = matches[2]
+  let matches        = serviceIdRegex.exec(argument)
+  let resolverAction = matches[1] // get the reference char "@" or the escape char "\\"
+  let resolverValue  = matches[2] // get the clean argument (without "@" or "\\")
 
   if (typeof actions[resolverAction] === 'undefined') {
     return actions['default'](resolverValue)
