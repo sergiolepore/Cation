@@ -104,41 +104,37 @@ class Cation
    * @api public
    */
   register(id, resource, options={}) {
-    return new Promise((resolve, reject) => {
-      if (!id) {
-        return reject(new Error('`id` is required'))
-      }
+    if (!id) {
+      throw new Error('`id` is required')
+    }
 
-      if (!resource) {
-        return reject(new Error('`resource` is required'))
-      }
+    if (!resource) {
+      throw new Error('`resource` is required')
+    }
 
-      if (this.has(id)) {
-        return reject(new Error(`There's already a resource registered as "${id}"`))
-      }
+    if (this.has(id)) {
+      throw new Error(`There's already a resource registered as "${id}"`)
+    }
 
-      if (typeof options.type === 'undefined') {
-        options.type = 'service'
-      }
+    if (typeof options.type === 'undefined') {
+      options.type = 'service'
+    }
 
-      if (typeof options.args === 'undefined') {
-        options.args = []
-      }
+    if (typeof options.args === 'undefined') {
+      options.args = []
+    }
 
-      if (typeof options.decorators === 'undefined') {
-        options.decorators = []
-      }
+    if (typeof options.decorators === 'undefined') {
+      options.decorators = []
+    }
 
-      if (!this.hasProvider(options.type)) {
-        return reject(new Error(`Unknown type: "${options.type}"`))
-      }
+    if (!this.hasProvider(options.type)) {
+      throw new Error(`Unknown type: "${options.type}"`)
+    }
 
-      let Provider = this[__providerMap__][options.type]
+    let Provider = this[__providerMap__][options.type]
 
-      this[__providerRepository__][id] = new Provider(this, resource, options)
-
-      return resolve()
-    })
+    this[__providerRepository__][id] = new Provider(this, resource, options)
   }
 
   /**

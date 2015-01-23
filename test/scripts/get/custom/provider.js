@@ -10,9 +10,9 @@ function CustomProvider(container, resource, options) {
         'customresolver-value',
         'Hi! I\'m a value stored by the custom resolver',
         { type: 'static' }
-      ).then(function() {
-        resolve(resource)
-      })
+      )
+
+      resolve(resource)
     }.bind(this))
   }
 }

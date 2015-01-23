@@ -17,9 +17,9 @@ describe('User-defined `service` resources:', function() {
       }
     }
 
-    container.register(serviceId, Service, { args: serviceArgs }).then(function() {
-      return container.get(serviceId)
-    }).then(function(service) {
+    container.register(serviceId, Service, { args: serviceArgs })
+
+    container.get(serviceId).then(function(service) {
       expect(
         service.sayHello()
       ).to.be.equals(
@@ -51,12 +51,10 @@ describe('User-defined `service` resources:', function() {
       }
     }
 
-    var srv1Promise = container.register('Service1', Service1, { args: ['Sergio', 'Lepore', 24, '@Service2'] })
-    var srv2Promise = container.register('Service2', Service2, { args: ['Cation'] })
+    container.register('Service1', Service1, { args: ['Sergio', 'Lepore', 24, '@Service2'] })
+    container.register('Service2', Service2, { args: ['Cation'] })
 
-    Promise.all([srv1Promise, srv2Promise]).then(function() {
-      return container.get('Service1')
-    }).then(function(service) {
+    container.get('Service1').then(function(service) {
       expect(
         service.sayHello()
       ).to.be.equals(

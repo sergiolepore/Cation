@@ -14,9 +14,9 @@ describe('User-defined Decorators:', function() {
       'service',
       function() { this.property = 'hi!' },
       { decorators: ['decoratorA', 'decoratorB'] }
-    ).then(function() {
-      return container.get('service')
-    }).then(function(service) {
+    )
+
+    container.get('service').then(function(service) {
       expect(
         service.property
       ).to.be.equal('hi!')

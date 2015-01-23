@@ -134,43 +134,38 @@ var Cation = (function () {
        * @api public
        */
       value: function register(id, resource) {
-        var _this = this;
         var options = arguments[2] === undefined ? {} : arguments[2];
-        return new Promise(function (resolve, reject) {
-          if (!id) {
-            return reject(new Error("`id` is required"));
-          }
+        if (!id) {
+          throw new Error("`id` is required");
+        }
 
-          if (!resource) {
-            return reject(new Error("`resource` is required"));
-          }
+        if (!resource) {
+          throw new Error("`resource` is required");
+        }
 
-          if (_this.has(id)) {
-            return reject(new Error("There's already a resource registered as \"" + id + "\""));
-          }
+        if (this.has(id)) {
+          throw new Error("There's already a resource registered as \"" + id + "\"");
+        }
 
-          if (typeof options.type === "undefined") {
-            options.type = "service";
-          }
+        if (typeof options.type === "undefined") {
+          options.type = "service";
+        }
 
-          if (typeof options.args === "undefined") {
-            options.args = [];
-          }
+        if (typeof options.args === "undefined") {
+          options.args = [];
+        }
 
-          if (typeof options.decorators === "undefined") {
-            options.decorators = [];
-          }
+        if (typeof options.decorators === "undefined") {
+          options.decorators = [];
+        }
 
-          if (!_this.hasProvider(options.type)) {
-            return reject(new Error("Unknown type: \"" + options.type + "\""));
-          }
+        if (!this.hasProvider(options.type)) {
+          throw new Error("Unknown type: \"" + options.type + "\"");
+        }
 
-          var Provider = _this[__providerMap__][options.type];
+        var Provider = this[__providerMap__][options.type];
 
-          _this[__providerRepository__][id] = new Provider(_this, resource, options);
-
-          return resolve();
-        });
+        this[__providerRepository__][id] = new Provider(this, resource, options);
       },
       writable: true,
       enumerable: true,
@@ -186,28 +181,28 @@ var Cation = (function () {
        * @api public
        */
       value: function get(id) {
-        var _this2 = this;
+        var _this = this;
         return new Promise(function (resolve, reject) {
-          if (!_this2.has(id)) {
+          if (!_this.has(id)) {
             return reject(new Error("\"" + id + "\" resource not found"));
           }
 
-          if (loadingStack.has(_this2, id)) {
+          if (loadingStack.has(_this, id)) {
             return reject(new Error("Error loading \"" + id + "\". Circular reference detected"));
           }
 
-          var provider = _this2[__providerRepository__][id];
+          var provider = _this[__providerRepository__][id];
           var isSingleton = provider.options.isSingleton;
 
-          if (isSingleton && _this2.isCached(id)) {
-            return resolve(_this2[__instanceCache__][id]);
+          if (isSingleton && _this.isCached(id)) {
+            return resolve(_this[__instanceCache__][id]);
           }
 
-          loadingStack.push(_this2, id);
+          loadingStack.push(_this, id);
 
           provider.get().then(function (resource) {
             // remove from loading stack. No more circular reference prevention
-            loadingStack.remove(_this2, id);
+            loadingStack.remove(_this, id);
 
             return resource;
           }).then(function (resource) {
@@ -219,8 +214,8 @@ var Cation = (function () {
             }
 
             var decoratorFunctions = decoratorNames.map(function (name) {
-              if (_this2.hasDecorator(name)) {
-                return _this2[__decoratorMap__][name];
+              if (_this.hasDecorator(name)) {
+                return _this[__decoratorMap__][name];
               }
             });
 
@@ -232,14 +227,14 @@ var Cation = (function () {
           }).then(function (resource) {
             // store instance in cache if singleton
             if (isSingleton) {
-              _this2[__instanceCache__][id] = resource;
+              _this[__instanceCache__][id] = resource;
             }
 
             return resource;
           }).then(function (resource) {
             return resolve(resource);
           })["catch"](function (error) {
-            loadingStack.remove(_this2, id);
+            loadingStack.remove(_this, id);
 
             return reject(error);
           });

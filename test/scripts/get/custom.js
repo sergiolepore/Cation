@@ -13,9 +13,9 @@ describe('User-defined Providers:', function() {
       'something',
       'hello',
       { type: 'custom' }
-    ).then(function() {
-      return container.get('something')
-    }).then(function(resource) {
+    )
+
+    container.get('something').then(function(resource) {
       expect(
         resource
       ).to.be.equal('hello')

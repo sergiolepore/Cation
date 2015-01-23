@@ -15,14 +15,11 @@ describe('User-defined `factory` resources:', function() {
       }
     }
 
-    var promisesArray = [
-      container.register('name', 'J.J.', { type: 'static' }),
-      container.register('lastname', 'Abrams', { type: 'static' }),
-      container.register('age', 48, { type: 'static' }),
-      container.register('project', 'Star Wars: The Force Awakens', { type: 'static' })
-    ]
-
-    var factoryPromise = container.register('DemoFactory', function(containerDep) {
+    container.register('name', 'J.J.', { type: 'static' })
+    container.register('lastname', 'Abrams', { type: 'static' })
+    container.register('age', 48, { type: 'static' })
+    container.register('project', 'Star Wars: The Force Awakens', { type: 'static' })
+    container.register('DemoFactory', function(containerDep) {
       var promisesArray = [
         containerDep.get('name'),
         containerDep.get('lastname'),
@@ -41,11 +38,7 @@ describe('User-defined `factory` resources:', function() {
       type: 'factory'
     })
 
-    promisesArray.push(factoryPromise)
-
-    Promise.all(promisesArray).then(function() {
-      return container.get('DemoFactory')
-    }).then(function(service) {
+    container.get('DemoFactory').then(function(service) {
       expect(
         service.sayHello()
       ).to.be.equals(
