@@ -22,8 +22,7 @@ var FactoryProvider = _interopRequire(require("./providers/factoryprovider"));
 
 var StaticProvider = _interopRequire(require("./providers/staticprovider"));
 
-var loadingStack = _interopRequireWildcard(require("./helpers/loadingstack"));
-
+// import * as loadingStack    from './helpers/loadingstack'
 var decoratorUtils = _interopRequireWildcard(require("./helpers/decorator"));
 
 /*! Private definitions */
@@ -88,7 +87,7 @@ var Cation = (function () {
     this[__providerMap__] = {};
     this[__decoratorMap__] = {};
 
-    loadingStack.init(this);
+    // loadingStack.init(this)
 
     this.addProvider("service", ServiceProvider);
     this.addProvider("factory", FactoryProvider);
@@ -187,9 +186,9 @@ var Cation = (function () {
             return reject(new Error("\"" + id + "\" resource not found"));
           }
 
-          if (loadingStack.has(_this, id)) {
-            return reject(new Error("Error loading \"" + id + "\". Circular reference detected"));
-          }
+          // if (loadingStack.has(this, id)) {
+          //   return reject(new Error(`Error loading "${id}". Circular reference detected`))
+          // }
 
           var provider = _this[__providerRepository__][id];
           var isSingleton = provider.options.isSingleton;
@@ -198,11 +197,11 @@ var Cation = (function () {
             return resolve(_this[__instanceCache__][id]);
           }
 
-          loadingStack.push(_this, id);
+          // loadingStack.push(this, id)
 
           provider.get().then(function (resource) {
             // remove from loading stack. No more circular reference prevention
-            loadingStack.remove(_this, id);
+            // loadingStack.remove(this, id)
 
             return resource;
           }).then(function (resource) {
@@ -234,7 +233,7 @@ var Cation = (function () {
           }).then(function (resource) {
             return resolve(resource);
           })["catch"](function (error) {
-            loadingStack.remove(_this, id);
+            // loadingStack.remove(this, id)
 
             return reject(error);
           });

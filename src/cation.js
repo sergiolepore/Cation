@@ -2,7 +2,7 @@
 import ServiceProvider      from './providers/serviceprovider'
 import FactoryProvider      from './providers/factoryprovider'
 import StaticProvider       from './providers/staticprovider'
-import * as loadingStack    from './helpers/loadingstack'
+// import * as loadingStack    from './helpers/loadingstack'
 import * as decoratorUtils  from './helpers/decorator'
 
 /*! Private definitions */
@@ -66,7 +66,7 @@ class Cation
     this[__providerMap__]         = {}
     this[__decoratorMap__]        = {}
 
-    loadingStack.init(this)
+    // loadingStack.init(this)
 
     this.addProvider('service', ServiceProvider)
     this.addProvider('factory', FactoryProvider)
@@ -150,9 +150,9 @@ class Cation
         return reject(new Error(`"${id}" resource not found`))
       }
 
-      if (loadingStack.has(this, id)) {
-        return reject(new Error(`Error loading "${id}". Circular reference detected`))
-      }
+      // if (loadingStack.has(this, id)) {
+      //   return reject(new Error(`Error loading "${id}". Circular reference detected`))
+      // }
 
       let provider    = this[__providerRepository__][id]
       let isSingleton = provider.options.isSingleton
@@ -161,11 +161,11 @@ class Cation
         return resolve(this[__instanceCache__][id])
       }
 
-      loadingStack.push(this, id)
+      // loadingStack.push(this, id)
 
       provider.get().then(resource => {
         // remove from loading stack. No more circular reference prevention
-        loadingStack.remove(this, id)
+        // loadingStack.remove(this, id)
 
         return resource
       }).then(resource => {
@@ -197,7 +197,7 @@ class Cation
       }).then(
         resource => resolve(resource)
       ).catch(error => {
-        loadingStack.remove(this, id)
+        // loadingStack.remove(this, id)
 
         return reject(error)
       })
