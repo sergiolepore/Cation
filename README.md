@@ -679,7 +679,7 @@ Removes all singleton instances from cache.
 [downloads-image]: https://img.shields.io/npm/dm/cation.svg?style=flat
 [downloads-url]: https://npmjs.org/package/cation
 [travis-image]: https://img.shields.io/travis/sergiolepore/Cation.svg?style=flat
-[travis-url]: https://travis-ci.org/sergiolepore/cation
+[travis-url]: https://travis-ci.org/sergiolepore/Cation
 [gratipay-image]: https://img.shields.io/gratipay/sergiolepore.svg?style=flat
 [gratipay-url]: https://gratipay.com/sergiolepore/
 [gitter-image]: https://badges.gitter.im/Join%20Chat.svg
