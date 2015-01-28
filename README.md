@@ -163,9 +163,10 @@ container.get('Water').then(function(molecule) {
 })
 ```
 
-Sweet, isn't it? Just remember: you can use whatever you want as an argument. But if you need an argument that is a registered service in Cation, you need to reference it by using a string like "@MyRegisteredService".
+Sweet, isn't it? Just remember: you can use whatever you want as an argument. But if you need an argument that is a registered resource in Cation, you need to reference it by using a string like "@MyRegisteredResource".
 
-**Q**: What if I need, in fact, an argument that is a string and starts with the `@` character **but it's not a service reference**?
+**Q**: What if I need, in fact, an argument that is a string and starts with the `@` character **but it's not a resource reference**?
+
 **A:** You can escape it with _double backslashes_.
 
 ```js
@@ -186,13 +187,56 @@ container.register('SingletonService', Service, {
 })
 ```
 
+#### A note about Service `register` options
+
+As you can see, the `register` method can take up to three arguments:
+
+- id: resource identifier.
+- resource: the resource to be registered (in this case, the service constructor).
+- options: an object containing options.
+
+When you are registering a `service`, the available options are:
+
+- `type`: this option is always provided by default as `service`. You can replace it with `type: 'factory'` and you'll be registering a factory, instead of a service. You'll learn about this in the next topic.
+- `singleton`: boolean option and `false` by default. If set to true, Cation will treat the resource as a singleton.
+- `args`: array option, `[]` by default. These are the arguments to apply to the service constructor. It only works if the `type` is `service`.
+- `decorators`: array option, `[]` by default. These are the names of the `Decorators` to be applied to the returned objects. You'll learn about this in the `Decorators` topic.
+
+Knowing that, these options are the same:
+
+```js
+{
+  type       : 'service',
+  singleton  : true,
+  args       : ['a', 2, '@B'],
+  decorators : ['decorator1', 'decorator2']
+}
+
+{
+  singleton  : true,
+  args       : ['a', 2, '@B'],
+  decorators : ['decorator1', 'decorator2']
+}
+```
+
+```js
+{
+  args      : []
+  singleton : true
+}
+
+{
+  singleton: true
+}
+```
+
 ### Factories
 
 If you need a more granular control over your created objects, you can opt for the _Factory Pattern_. In Cation, a factory must follow these simple rules:
 
 - The factory function receives the container object as an optional argument. Useful only if you need dependencies from it.
 - The factory function **must** return a _Promise_.
-- The `Cation#register` must receive a third argument (options) provided as an object. The options must have, at least, a property `type` equals to `factory`.
+- The `Cation#register` method must receive an `options` object with, at least, a property `type` equals to `factory`.
 
 ```js
 // if you know how promises work, you'll notice that this code block can be
@@ -257,6 +301,14 @@ container.get('ServiceC').then(function(serviceObject) {
 })
 ```
 
+#### Options
+
+The `Cation#register` method, when registering a factory resource, can take these options:
+
+- `type`: you **MUST** set this option to `'factory'`.
+- `singleton`: boolean option, `false` by default. After the first factory execution, the instance will be stored as a singleton.
+- `decorators`: array option, `[]` by default. These are the names of the `Decorators` to be applied to the returned objects. You'll learn about this in the `Decorators` topic.
+
 ### Static resources
 
 These kind of resources are treated as _constants_ by Cation. You can freely register a number, string, array, object or functions. Every time you call `Cation#get` you'll receive the same value.
@@ -272,6 +324,10 @@ container.register('Hydrogen', Element, {
   args: ['Hydrogen', 'H', 1, '@hydrogen-atomic-weight']
 })
 ```
+
+#### Options
+
+- `type`: you **MUST** set this option to `'static'`.
 
 ### Decorators
 
