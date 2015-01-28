@@ -471,6 +471,201 @@ container.get('DeadResource').then(function(resource) {
 })
 ```
 
+### Identifying every container instance
+
+The Cation constructor can take an options object as an argument. Currently, the only supported option is `id`. With this ID you can keep track of your containers, in case you are creating more than one.
+
+```js
+var container1 = new Cation({ id: 'c-1' })
+var container2 = new Cation({ id: 'c-2' })
+
+console.log(container1.getId()) // c-1
+console.log(container2.getId()) // c-2
+```
+
+
+## API
+
+### Cation(options)
+
+Cation constructor
+
+Parameters                       | Type     | Description
+:--------------------------------|:---------|:-----------
+**options** <br/> **(optional)** | *object* | An object containing options.
+
+**Options**
+
+Name                        | Type      | Description
+:---------------------------|:----------|:-----------
+**id** <br/> **(optional)** | *string*  | An ID for the current Cation instance.
+
+### Cation.prototype.getId()
+
+**Return**
+
+Type       | Description
+:----------|:-----------
+**string** | The container ID.
+
+### Cation.prototype.register(id, resource, options)
+
+Registers a service constructor, a factory function or a static value.
+
+Parameters                       | Type     | Description
+:--------------------------------|:---------|:-----------
+**id**                           | *string* | The ID of the resource to register. Must be unique.
+**resource**                     | *mixed*  | The resource to be registered.
+**options** <br/> **(optional)** | *object* | An object containing options.
+
+**Options**
+
+Name                                | Type      | Description
+:-----------------------------------|:----------|:-----------
+**type** <br/> **(optional)**       | *string*  | Specify the type of resource to be registered. It can be *service* (default), *factory* or *static*.
+**args** <br/> **(optional)**       | *array*   | Arguments to apply if the registered resource is a *service*.
+**singleton** <br/> **(optional)**  | *boolean* | Singleton behaviour.
+**decorators** <br/> **(optional)** | *array*   | Decorators to be applied to the returned instances.
+
+### Cation.prototype.get(id)
+
+Retrieves a resource from the container.
+
+Parameters | Type     | Description
+:----------|:---------|:-----------
+**id**     | *string* | The ID of a previously registered resource.
+
+**Return**
+
+Type        | Description
+:-----------|:-----------
+**Promise** | Promise whose resolved value is the requested service instance / resource value.
+
+### Cation.prototype.has(id)
+
+Checks if a resource is registered.
+
+Parameters | Type     | Description
+:----------|:---------|:-----------
+**id**     | *string* | The ID of a resource.
+
+**Return**
+
+Type        | Description
+:-----------|:-----------
+**Boolean** | `true` if the container has the resource, `false` otherwise.
+
+### Cation.prototype.remove(id)
+
+Removes a resource from the container.
+
+Parameters | Type     | Description
+:----------|:---------|:-----------
+**id**     | *string* | The ID of a resource.
+
+### Cation.prototype.addProvider(name, providerFunction)
+
+Registers a resource provider.
+
+Parameters           | Type       | Description
+:--------------------|:-----------|:-----------
+**name**             | *string*   | Provider name. Must be unique.
+**providerFunction** | *function* | Provider function.
+
+**providerFunction**
+
+Parameters    | Type     | Description
+:-------------|:---------|:-----------
+**container** | *Cation* | A Cation instance.
+**id**        | *string* | The ID of the resource being registered.
+**resource**  | *mixed*  | The resource being registered.
+**options**   | *object* | An object containing options.
+
+### Cation.prototype.hasProvider(name)
+
+Checks if a given provider is registered.
+
+Parameters | Type     | Description
+:----------|:---------|:-----------
+**name**   | *string* | The name of a provider.
+
+**Return**
+
+Type        | Description
+:-----------|:-----------
+**Boolean** | `true` if the container has the provider, `false` otherwise.
+
+### Cation.prototype.removeProvider(name)
+
+Removes a given provider.
+
+Parameters | Type     | Description
+:----------|:---------|:-----------
+**name**   | *string* | The name of a provider.
+
+### Cation.prototype.addDecorator(name, decoratorFunction)
+
+Registers a resource decorator.
+
+Parameters            | Type       | Description
+:---------------------|:-----------|:-----------
+**name**              | *string*   | Decorator name. Must be unique.
+**decoratorFunction** | *function* | Decorator function.
+
+**decoratorFunction**
+
+Parameters    | Type     | Description
+:-------------|:---------|:-----------
+**resource**  | *mixed*  | The resource to be decorated.
+
+### Cation.prototype.hasDecorator(name)
+
+Checks if a given decorator is registered.
+
+Parameters | Type     | Description
+:----------|:---------|:-----------
+**name**   | *string* | The name of a decorator.
+
+**Return**
+
+Type        | Description
+:-----------|:-----------
+**Boolean** | `true` if the container has the decorator, `false` otherwise.
+
+### Cation.prototype.removeDecorator(name)
+
+Removes a given decorator.
+
+Parameters | Type     | Description
+:----------|:---------|:-----------
+**name**   | *string* | The name of a decorator.
+
+### Cation.prototype.isCached(id)
+
+Checks if a resource is cached. Only instances from services declared as `singleton` will be stored in cache.
+
+Parameters | Type     | Description
+:----------|:---------|:-----------
+**id**     | *string* | The ID of a resource.
+
+**Return**
+
+Type        | Description
+:-----------|:-----------
+**Boolean** | `true` if the container has the resource in the singleton cache, `false` otherwise.
+
+### Cation.prototype.clearCache()
+
+Removes all singleton instances from cache.
+
+
+
+
+
+
+
+
+
 [npm-image]: https://img.shields.io/npm/v/cation.svg?style=flat
 [npm-url]: https://npmjs.org/package/cation
 [downloads-image]: https://img.shields.io/npm/dm/cation.svg?style=flat
