@@ -487,6 +487,11 @@ console.log(container2.getId()) // c-2
 
 Please, check the [Contributing.md document][contributing-url] for detailed info.
 
+## License
+
+Check the [LICENSE][license-url] file.
+
+
 ## API
 
 ### Cation(options)
@@ -687,3 +692,4 @@ Removes all singleton instances from cache.
 [angular-doc-url]: https://docs.angularjs.org/guide/di
 [angular-api-url]: https://docs.angularjs.org/api/ng/type/angular.Module
 [contributing-url]: https://github.com/sergiolepore/Cation/blob/master/Contributing.md
+[license-url]: https://github.com/sergiolepore/Cation/blob/master/LICENSE
