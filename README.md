@@ -336,7 +336,7 @@ Every decorator must follow these rules:
 
 - The decorator function must receive the object to decorate, as an argument.
 - The decorator function must return the same object or another one that supersedes it.
-- The `Cation#register` must receive a third argument (options) provided as an object. The options must have, at least, a property `decorators` equals to an array with the decorator names to be applied.
+- The `Cation#register` method must receive an `options` object with, at least, a property `decorators` equals to an array with the decorator names to be applied.
 
 ```js
 // Example inspired by "Learning JavaScript Design Patterns" book by Addy Osmani
@@ -428,7 +428,7 @@ What if, for some reason, you need a custom provider?
  * @param {Object} options   The register options
  */
 function GhostProvider(container, id, resource, options) {
-  // All ResourceProviders are created with there args, always.
+  // All ResourceProviders are created with these args, always.
   this.container = container
   this.id        = id
   this.resource  = resource
