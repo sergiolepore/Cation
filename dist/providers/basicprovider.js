@@ -4,8 +4,8 @@
  * Basic Provider.
  * Intended as an Abstract Class. All providers must extend from this.
  */
-var BasicProvider = function BasicProvider(container, resource) {
-  var options = arguments[2] === undefined ? {} : arguments[2];
+var BasicProvider = function BasicProvider(container, id, resource) {
+  var options = arguments[3] === undefined ? {} : arguments[3];
   if (!container || container.constructor.name !== "Cation") {
     throw new Error("Invalid container instance");
   }
@@ -19,6 +19,7 @@ var BasicProvider = function BasicProvider(container, resource) {
   }
 
   this.container = container;
+  this.id = id;
   this.resource = resource;
   this.options = options;
 };

@@ -5,7 +5,7 @@
  */
 class BasicProvider
 {
-  constructor(container, resource, options={}) {
+  constructor(container, id, resource, options={}) {
     if (!container || container.constructor.name !== 'Cation') {
       throw new Error('Invalid container instance')
     }
@@ -19,6 +19,7 @@ class BasicProvider
     }
 
     this.container = container
+    this.id        = id
     this.resource  = resource
     this.options   = options
   }

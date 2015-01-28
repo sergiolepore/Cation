@@ -60,9 +60,9 @@ var util = _interopRequireWildcard(require("../helpers/service"));
  * Service Provider
  */
 var ServiceProvider = (function (BasicProvider) {
-  function ServiceProvider(container, resource) {
-    var options = arguments[2] === undefined ? {} : arguments[2];
-    _get(Object.getPrototypeOf(ServiceProvider.prototype), "constructor", this).call(this, container, resource, options);
+  function ServiceProvider(container, id, resource) {
+    var options = arguments[3] === undefined ? {} : arguments[3];
+    _get(Object.getPrototypeOf(ServiceProvider.prototype), "constructor", this).call(this, container, id, resource, options);
   }
 
   _inherits(ServiceProvider, BasicProvider);

@@ -95,7 +95,7 @@ class Cation
    * @param {Object}  options   Object with options. Optional.
    *
    *   Options:
-   *     - type: (string) resource type (service, factory, stati or a custom type).
+   *     - type: (string) resource type (service, factory, static or a custom type).
    *     - singleton: (boolean) singleton behaviour.
    *     - args: (array) Arguments to be applied to the resource when retrieved (if resource is a function). Optional.
    *     - decorators: (array) ids of already registered decorators. Will be applied in order to the resource, when retrieved.
@@ -134,7 +134,7 @@ class Cation
 
     let Provider = this[__providerMap__][options.type]
 
-    this[__providerRepository__][id] = new Provider(this, resource, options)
+    this[__providerRepository__][id] = new Provider(this, id, resource, options)
   }
 
   /**

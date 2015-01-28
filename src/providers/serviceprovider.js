@@ -6,8 +6,8 @@ import * as util     from '../helpers/service'
  */
 class ServiceProvider extends BasicProvider
 {
-  constructor(container, resource, options={}) {
-    super(container, resource, options)
+  constructor(container, id, resource, options={}) {
+    super(container, id, resource, options)
   }
 
   /**

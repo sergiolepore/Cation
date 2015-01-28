@@ -1,8 +1,9 @@
 
-function CustomProvider(container, resource, options) {
+function CustomProvider(container, id, resource, options) {
   this.container = container
-  this.resource = resource
-  this.options = options
+  this.id        = id
+  this.resource  = resource
+  this.options   = options
 
   this.get = function() {
     return new Promise(function(resolve) {

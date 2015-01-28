@@ -5,8 +5,8 @@ import BasicProvider from './basicprovider'
  */
 class StaticProvider extends BasicProvider
 {
-  constructor(container, resource, options={}) {
-    super(container, resource, options)
+  constructor(container, id, resource, options={}) {
+    super(container, id, resource, options)
   }
 
   /**

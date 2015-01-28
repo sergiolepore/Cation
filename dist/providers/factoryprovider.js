@@ -52,9 +52,9 @@ var BasicProvider = _interopRequire(require("./basicprovider"));
  * Factory Provider
  */
 var FactoryProvider = (function (BasicProvider) {
-  function FactoryProvider(container, resource) {
-    var options = arguments[2] === undefined ? {} : arguments[2];
-    _get(Object.getPrototypeOf(FactoryProvider.prototype), "constructor", this).call(this, container, resource, options);
+  function FactoryProvider(container, id, resource) {
+    var options = arguments[3] === undefined ? {} : arguments[3];
+    _get(Object.getPrototypeOf(FactoryProvider.prototype), "constructor", this).call(this, container, id, resource, options);
   }
 
   _inherits(FactoryProvider, BasicProvider);

@@ -52,9 +52,9 @@ var BasicProvider = _interopRequire(require("./basicprovider"));
  * Static Provider
  */
 var StaticProvider = (function (BasicProvider) {
-  function StaticProvider(container, resource) {
-    var options = arguments[2] === undefined ? {} : arguments[2];
-    _get(Object.getPrototypeOf(StaticProvider.prototype), "constructor", this).call(this, container, resource, options);
+  function StaticProvider(container, id, resource) {
+    var options = arguments[3] === undefined ? {} : arguments[3];
+    _get(Object.getPrototypeOf(StaticProvider.prototype), "constructor", this).call(this, container, id, resource, options);
   }
 
   _inherits(StaticProvider, BasicProvider);
