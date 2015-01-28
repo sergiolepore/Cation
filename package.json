@@ -40,7 +40,8 @@
     "container",
     "service",
     "constructor",
-    "factory"
+    "factory",
+    "decorator"
   ],
   "license": "MIT",
   "bugs": {
