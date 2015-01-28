@@ -69,10 +69,8 @@ var FactoryProvider = (function (BasicProvider) {
        * @api public
        */
       value: function get() {
-        var _this = this;
-        return new Promise(function (resolve) {
-          return resolve(_this.resource.apply(_this.resource, [_this.container]));
-        });
+        return this.resource.apply(this.resource, [this.container]) // execute the factory function. it must return a promise.
+        ;
       },
       writable: true,
       enumerable: true,

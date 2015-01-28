@@ -16,9 +16,7 @@ class FactoryProvider extends BasicProvider
    * @api public
    */
   get() {
-    return new Promise(resolve => {
-      return resolve(this.resource.apply(this.resource, [this.container]))
-    })
+    return this.resource.apply(this.resource, [this.container]) // execute the factory function. it must return a promise.
   }
 }
 
