@@ -138,7 +138,7 @@ class Cation
   }
 
   /**
-   * Retrieves a service from the container.
+   * Retrieves a resource from the container.
    *
    * @param {String}  id  Resource ID.
    * @return {Promise}
@@ -205,7 +205,7 @@ class Cation
   }
 
   /**
-   * Checks if service is registered.
+   * Checks if a resource is registered.
    *
    * @param {String}  id  Resource ID
    * @return {Boolean}
@@ -220,7 +220,7 @@ class Cation
   }
 
   /**
-   * Removes a service from the container.
+   * Removes a resource from the container.
    *
    * @param {String}  id  Resource ID.
    * @api public
