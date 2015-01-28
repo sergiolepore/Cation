@@ -202,7 +202,7 @@ When you are registering a `service`, the available options are:
 - `args`: array option, `[]` by default. These are the arguments to apply to the service constructor. It only works if the `type` is `service`.
 - `decorators`: array option, `[]` by default. These are the names of the `Decorators` to be applied to the returned objects. You'll learn about this in the `Decorators` topic.
 
-Knowing that, these options are the same:
+Having known that, these options are the same:
 
 ```js
 {
