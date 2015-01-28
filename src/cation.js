@@ -1,9 +1,10 @@
 /*! Module dependencies */
+import BasicProvider        from './providers/basicprovider'
 import ServiceProvider      from './providers/serviceprovider'
 import FactoryProvider      from './providers/factoryprovider'
 import StaticProvider       from './providers/staticprovider'
-// import * as loadingStack    from './helpers/loadingstack'
 import * as decoratorUtils  from './helpers/decorator'
+// import * as loadingStack    from './helpers/loadingstack'
 
 /*! Private definitions */
 
@@ -349,4 +350,6 @@ class Cation
 }
 
 // And here... we... GO.
-export default Cation
+export default Cation    // import Cation from 'cation'
+export { BasicProvider } // import { BasicProvider } from 'cation'
+                         // import Cation, { BasicProvider } from 'cation'

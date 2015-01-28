@@ -5,6 +5,17 @@ var _prototypeProperties = function (child, staticProps, instanceProps) {
   if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
 };
 
+var _extends = function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];
+    for (var key in source) {
+      target[key] = source[key];
+    }
+  }
+
+  return target;
+};
+
 var _interopRequireWildcard = function (obj) {
   return obj && obj.constructor === Object ? obj : {
     "default": obj
@@ -16,14 +27,17 @@ var _interopRequire = function (obj) {
 };
 
 /*! Module dependencies */
+var BasicProvider = _interopRequire(require("./providers/basicprovider"));
+
 var ServiceProvider = _interopRequire(require("./providers/serviceprovider"));
 
 var FactoryProvider = _interopRequire(require("./providers/factoryprovider"));
 
 var StaticProvider = _interopRequire(require("./providers/staticprovider"));
 
-// import * as loadingStack    from './helpers/loadingstack'
 var decoratorUtils = _interopRequireWildcard(require("./helpers/decorator"));
+
+// import * as loadingStack    from './helpers/loadingstack'
 
 /*! Private definitions */
 
@@ -441,5 +455,12 @@ var Cation = (function () {
   return Cation;
 })();
 
+exports["default"] = Cation;
+// import Cation from 'cation'
+exports.BasicProvider = BasicProvider;
+// import { BasicProvider } from 'cation'
+// import Cation, { BasicProvider } from 'cation'
+
+
 // And here... we... GO.
-module.exports = Cation;
+module.exports = _extends(exports["default"], exports);
