@@ -6,7 +6,7 @@ A fast and customizable `Dependency Injection Container` for [node](http://nodej
 [![NPM Downloads][downloads-image]][downloads-url]
 [![Build Status][travis-image]][travis-url]
 [![Donations][gratipay-image]][gratipay-url]
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sergiolepore/Cation?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Gitter][gitter-image]][gitter-url]
 
 ```js
 var container = new Cation()
@@ -21,20 +21,20 @@ container.get('Atom').then(function(atom) {
 
 ## Brief intro
 
-Cation is a powerful Dependency Injection Container (DIC). The first version was released on 2011-2012 as an unstable/experimental library and was inspired by the Symfony 2 container. [It only allowed a JSON schema to register a service (yeah, it was an ugly experiment)](https://github.com/sergiolepore/Cation/blob/f57243df6678da06d483c55ece5e2a67e501ae97/README.md#usage). There was no Factories, no Decorators. Just "Services".
+Cation is a powerful Dependency Injection Container (DIC). The first version was released on 2011-2012 as an unstable/experimental library and was inspired by the Symfony 2 container. [It only allowed a JSON schema to register a service (yeah, it was an ugly experiment)][original-cation-url]. There was no Factories, no Decorators. Just "Services".
 
 **The version 2 is a MUCH, MUCH BETTER EVOLUTION**, heavily inspired on these projects:
 
--  [Symfony DIC](http://symfony.com/doc/current/components/dependency_injection/introduction.html) - [API](http://api.symfony.com/2.7/Symfony/Component/DependencyInjection/ContainerBuilder.html)
-- [Dependency Injection: the Ember.js way](http://emberjs.com/guides/understanding-ember/dependency-injection-and-service-lookup/) - [API](http://emberjs.com/api/classes/Ember.Application.html)
-- [Dependency Injection: the Angular.js way](https://docs.angularjs.org/guide/di) - [API](https://docs.angularjs.org/api/ng/type/angular.Module)
+- [Symfony DIC][symfony-doc-url] - [API][symfony-api-url]
+- [Dependency Injection: the Ember.js way][ember-doc-url] - [API][ember-api-url]
+- [Dependency Injection: the Angular.js way][angular-doc-url] - [API][angular-api-url]
 
 Cool things you'll enjoy for sure:
 
 - Organize all your dependencies in a single place. Retrieve them only when you need them.
 - `Service`, `Factory` and `Static` _resource providers_, right out of the box.
-- User-defined / Custom _resource providers_.
 - `Decorator` support.
+- User-defined / Custom _resource providers_.
 - Lazy loaded dependencies (and it's awesome).
 - Future-proof JavaScript / ES6 support.
 - Beautiful API.
@@ -483,6 +483,9 @@ console.log(container1.getId()) // c-1
 console.log(container2.getId()) // c-2
 ```
 
+## Contributing
+
+Please, check the [Contributing.md document][contributing-url] for detailed info.
 
 ## API
 
@@ -674,3 +677,13 @@ Removes all singleton instances from cache.
 [travis-url]: https://travis-ci.org/sergiolepore/cation
 [gratipay-image]: https://img.shields.io/gratipay/sergiolepore.svg?style=flat
 [gratipay-url]: https://gratipay.com/sergiolepore/
+[gitter-image]: https://badges.gitter.im/Join%20Chat.svg
+[gitter-url]: https://gitter.im/sergiolepore/Cation?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+[original-cation-url]: https://github.com/sergiolepore/Cation/blob/f57243df6678da06d483c55ece5e2a67e501ae97/README.md#usage
+[symfony-doc-url]: http://symfony.com/doc/current/components/dependency_injection/introduction.html
+[symfony-api-url]: http://api.symfony.com/2.7/Symfony/Component/DependencyInjection/ContainerBuilder.html
+[ember-doc-url]: http://emberjs.com/guides/understanding-ember/dependency-injection-and-service-lookup/
+[ember-api-url]: http://emberjs.com/api/classes/Ember.Application.html
+[angular-doc-url]: https://docs.angularjs.org/guide/di
+[angular-api-url]: https://docs.angularjs.org/api/ng/type/angular.Module
+[contributing-url]: https://github.com/sergiolepore/Cation/blob/master/Contributing.md
