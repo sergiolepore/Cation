@@ -1,3 +1,9 @@
+# Cation Changelog
+
+## 2.0.0 (January 28, 2015)
+
+Super awesome new version! I can't really list all changes since 1.0.0-alpha.2, so you should check the README.md file for yourself :)
+
 ## 1.0.0-Alpha.2 (Nov 09, 2012)
 
 Features:
