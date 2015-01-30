@@ -1,4 +1,7 @@
-# Cation Changelog
+
+# 2.0.1 (January 29, 2015)
+
+  * Fixed a few typos
 
 ## 2.0.0 (January 28, 2015)
 
