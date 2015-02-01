@@ -8,6 +8,7 @@ var mocha       = require('gulp-mocha')
 var to5         = require('gulp-6to5')
 var plumber     = require('gulp-plumber')
 var runSequence = require('run-sequence')
+var del         = require('del')
 
 /* Directories to watch */
 var sourceDir = 'src/**/*.js'
@@ -16,6 +17,12 @@ var distDir   = 'dist'
 
 /* if watching, do not exit the application if a test failed */
 var watching = false
+
+gulp.task('clean', function(callback) {
+  del([
+    distDir+'/**'
+  ], callback)
+})
 
 /* Compile ES6 to ES5 */
 gulp.task('6to5', function() {
@@ -64,6 +71,7 @@ gulp.task('jshint', function(){
 /* Execute in order */
 gulp.task('compile-then-test', function(callback) {
   runSequence(
+    'clean',
     '6to5',
     'jshint',
     'mocha',
