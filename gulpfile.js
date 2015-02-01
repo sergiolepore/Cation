@@ -8,8 +8,6 @@ var mocha       = require('gulp-mocha')
 var to5         = require('gulp-6to5')
 var plumber     = require('gulp-plumber')
 var runSequence = require('run-sequence')
-var markdox     = require("gulp-markdox")
-var concat      = require("gulp-concat")
 
 /* Directories to watch */
 var sourceDir = 'src/**/*.js'
@@ -71,13 +69,6 @@ gulp.task('compile-then-test', function(callback) {
     'mocha',
     callback
   )
-})
-
-gulp.task("doc", function(){
-  gulp.src("dist/*.js")
-    .pipe(markdox())
-    .pipe(concat("doc.md"))
-    .pipe(gulp.dest("docs"))
 })
 
 /* Watch for file changes, then perform the tests */
