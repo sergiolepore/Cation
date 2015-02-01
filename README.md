@@ -294,6 +294,8 @@ container.register('ServiceC', function(container) {
     // on `Cation#get` call.
     return new ServiceC(dependencyA, dependencyB)
   })
+}, {
+  type: 'factory'
 })
 
 container.get('ServiceC').then(function(serviceObject) {
