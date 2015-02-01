@@ -1,4 +1,8 @@
 
+## 2.0.3 (February 01, 2015)
+
+Removed useless dependencies and improved the build process.
+
 ## 2.0.2 (January 31, 2015)
 
   * Fixed an error in documentation
