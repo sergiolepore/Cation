@@ -1,5 +1,10 @@
 
-# 2.0.1 (January 29, 2015)
+## 2.0.2 (January 31, 2015)
+
+  * Fixed an error in documentation
+  * Removed and old and useless file
+
+## 2.0.1 (January 29, 2015)
 
   * Fixed a few typos
 
