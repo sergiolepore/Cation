@@ -18,6 +18,7 @@ var distDir   = 'dist'
 /* if watching, do not exit the application if a test failed */
 var watching = false
 
+/* remove everything inside dist/ directory */
 gulp.task('clean', function(callback) {
   del([
     distDir+'/**'
