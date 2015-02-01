@@ -1,6 +1,6 @@
 ## Cation
 
-A fast and customizable `Dependency Injection Container` for [node](http://nodejs.org).
+A fast and customizable `Dependency Injection Container` for [Node.js](http://nodejs.org)/[io.js](https://iojs.org/)
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
