@@ -1,4 +1,8 @@
 
+## 2.1.1 (February 01, 2015)
+
+Added missing documentation for 'tags' feature. Fixed a few typos in README.
+
 ## 2.1.0 (February 01, 2015)
 
   * Added a new feature to tag resources. See [this](https://github.com/sergiolepore/Cation/blob/master/README.md#working-with-tagged-resources).
