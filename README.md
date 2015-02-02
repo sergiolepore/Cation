@@ -24,7 +24,7 @@ container.get('Atom').then(function(atom) {
 
 Cation is a powerful Dependency Injection Container (DIC). The first version was released in 2011-2012 as an unstable/experimental library and was inspired by the Symfony 2 container. [It only allowed a JSON schema to register a service (yeah, it was an ugly experiment)][original-cation-url]. There were no Factories, no Decorators. Just "Services".
 
-**The version 2 is a MUCH, MUCH BETTER EVOLUTION**, heavily inspired on these projects:
+**The version 2 is a MUCH, MUCH BETTER EVOLUTION**, heavily inspired by these projects:
 
 - [Symfony DIC][symfony-doc-url] - [API][symfony-api-url]
 - [Dependency Injection: the Ember.js way][ember-doc-url] - [API][ember-api-url]
