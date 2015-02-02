@@ -37,8 +37,6 @@ var StaticProvider = _interopRequire(require("./providers/staticprovider"));
 
 var decoratorUtils = _interopRequireWildcard(require("./helpers/decorator"));
 
-// import * as loadingStack    from './helpers/loadingstack'
-
 /*! Private definitions */
 
 /**
@@ -52,36 +50,36 @@ var __containerId__ = Symbol();
 
 /**
  * Provider Repository.
- * An object used to store all registered resources, with their own config and ID.
+ * ResourceID/ProviderInstance Map object for Resource Providers.
  *
- * @type {Object}
+ * @type {Map}
  * @api private
  */
 var __providerRepository__ = Symbol();
 
 /**
  * Instance Cache.
- * An object used to store all singleton instances.
+ * ResourceID/Instance Map object for Singletons.
  *
- * @type {Object}
+ * @type {Map}
  * @api private
  */
 var __instanceCache__ = Symbol();
 
 /**
  * Provider Map.
- * An object used to map the provider names and classes.
+ * Name/Function Map object for Providers.
  *
- * @type {Object}
+ * @type {Map}
  * @api private
  */
 var __providerMap__ = Symbol();
 
 /**
  * Decorator Map.
- * An object used to map the decorator names and functions.
+ * Name/Function Map object for Decorators.
  *
- * @type {Object}
+ * @type {Map}
  * @api private
  */
 var __decoratorMap__ = Symbol();
@@ -96,12 +94,10 @@ var Cation = (function () {
     var _ref = arguments[0] === undefined ? {} : arguments[0];
     var id = _ref.id;
     this[__containerId__] = id;
-    this[__providerRepository__] = {};
-    this[__instanceCache__] = {};
-    this[__providerMap__] = {};
-    this[__decoratorMap__] = {};
-
-    // loadingStack.init(this)
+    this[__providerRepository__] = new Map();
+    this[__instanceCache__] = new Map();
+    this[__providerMap__] = new Map();
+    this[__decoratorMap__] = new Map();
 
     this.addProvider("service", ServiceProvider);
     this.addProvider("factory", FactoryProvider);
@@ -176,9 +172,9 @@ var Cation = (function () {
           throw new Error("Unknown type: \"" + options.type + "\"");
         }
 
-        var Provider = this[__providerMap__][options.type];
+        var Provider = this[__providerMap__].get(options.type);
 
-        this[__providerRepository__][id] = new Provider(this, id, resource, options);
+        this[__providerRepository__].set(id, new Provider(this, id, resource, options));
       },
       writable: true,
       enumerable: true,
@@ -200,25 +196,14 @@ var Cation = (function () {
             return reject(new Error("\"" + id + "\" resource not found"));
           }
 
-          // if (loadingStack.has(this, id)) {
-          //   return reject(new Error(`Error loading "${id}". Circular reference detected`))
-          // }
-
-          var provider = _this[__providerRepository__][id];
+          var provider = _this[__providerRepository__].get(id);
           var isSingleton = provider.options.isSingleton;
 
           if (isSingleton && _this.isCached(id)) {
-            return resolve(_this[__instanceCache__][id]);
+            return resolve(_this[__instanceCache__].get(id));
           }
 
-          // loadingStack.push(this, id)
-
           provider.get().then(function (resource) {
-            // remove from loading stack. No more circular reference prevention
-            // loadingStack.remove(this, id)
-
-            return resource;
-          }).then(function (resource) {
             // apply decorators
             var decoratorNames = provider.options.decorators;
 
@@ -228,7 +213,7 @@ var Cation = (function () {
 
             var decoratorFunctions = decoratorNames.map(function (name) {
               if (_this.hasDecorator(name)) {
-                return _this[__decoratorMap__][name];
+                return _this[__decoratorMap__].get(name);
               }
             });
 
@@ -240,15 +225,13 @@ var Cation = (function () {
           }).then(function (resource) {
             // store instance in cache if singleton
             if (isSingleton) {
-              _this[__instanceCache__][id] = resource;
+              _this[__instanceCache__].set(id, resource);
             }
 
             return resource;
           }).then(function (resource) {
             return resolve(resource);
           })["catch"](function (error) {
-            // loadingStack.remove(this, id)
-
             return reject(error);
           });
         });
@@ -267,7 +250,7 @@ var Cation = (function () {
        * @api public
        */
       value: function has(id) {
-        if (this[__providerRepository__].hasOwnProperty(id)) {
+        if (this[__providerRepository__].has(id)) {
           return true;
         }
 
@@ -290,7 +273,7 @@ var Cation = (function () {
           return;
         }
 
-        delete this[__providerRepository__][id];
+        this[__providerRepository__]["delete"](id);
       },
       writable: true,
       enumerable: true,
@@ -312,7 +295,7 @@ var Cation = (function () {
           return;
         }
 
-        providerMap[name] = providerFunction;
+        providerMap.set(name, providerFunction);
       },
       writable: true,
       enumerable: true,
@@ -328,9 +311,7 @@ var Cation = (function () {
        * @api public
        */
       value: function hasProvider(name) {
-        var providerMap = this[__providerMap__];
-
-        return providerMap.hasOwnProperty(name);
+        return this[__providerMap__].has(name);
       },
       writable: true,
       enumerable: true,
@@ -351,7 +332,7 @@ var Cation = (function () {
           return;
         }
 
-        delete providerMap[name];
+        providerMap["delete"](name);
       },
       writable: true,
       enumerable: true,
@@ -373,7 +354,7 @@ var Cation = (function () {
           return;
         }
 
-        decoratorMap[name] = decoratorFunction;
+        decoratorMap.set(name, decoratorFunction);
       },
       writable: true,
       enumerable: true,
@@ -388,9 +369,7 @@ var Cation = (function () {
        * @api public
        */
       value: function hasDecorator(name) {
-        var decoratorMap = this[__decoratorMap__];
-
-        return decoratorMap.hasOwnProperty(name);
+        return this[__decoratorMap__].has(name);
       },
       writable: true,
       enumerable: true,
@@ -411,7 +390,7 @@ var Cation = (function () {
           return;
         }
 
-        delete decoratorMap[name];
+        decoratorMap["delete"](name);
       },
       writable: true,
       enumerable: true,
@@ -428,9 +407,7 @@ var Cation = (function () {
        * @api public
        */
       value: function isCached(id) {
-        var instanceCache = this[__instanceCache__];
-
-        return instanceCache.hasOwnProperty(id);
+        return this[__instanceCache__].has(id);
       },
       writable: true,
       enumerable: true,
@@ -444,7 +421,7 @@ var Cation = (function () {
        * @api public
        */
       value: function clearCache() {
-        this[__instanceCache__] = {};
+        this[__instanceCache__].clear();
       },
       writable: true,
       enumerable: true,
