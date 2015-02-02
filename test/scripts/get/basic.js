@@ -91,19 +91,20 @@ describe('Retrieving invalid services:', function() {
   // })
 })
 
-// describe('Working with tagged resources:', function() {
-//   it('should find resource IDs with a given tag', function(done) {
-//     var container = new Cation()
-//
-//     container.register('Demo1', function() {}, { tags: ['something.tag', 'another.tag'] })
-//     container.register('Mailer', function() {}, { tags: ['awesomeframework.core.boot', 'another.tag'] })
-//     container.register('View', function() {}, { tags: ['awesomeframework.core.boot', 'another.tag'] })
-//
-//     var serviceIds = container.findTaggedResourceIds('awesomeframework.core.boot')
-//
-//     expect(serviceIds).to.include('Mailer')
-//     expect(serviceIds).to.include('View')
-//
-//     done()
-//   })
-// })
+describe('Working with tagged resources:', function() {
+  it('should find resource IDs with a given tag', function(done) {
+    var container = new Cation()
+
+    container.register('Demo1', function() {}, { tags: ['something.tag', 'another.tag'] })
+    container.register('Mailer', function() {}, { tags: ['awesomeframework.core.boot', 'another.tag'] })
+    container.register('View', function() {}, { tags: ['awesomeframework.core.boot', 'another.tag'] })
+
+    var serviceIds = container.findTaggedResourceIds('awesomeframework.core.boot')
+
+    expect(serviceIds).to.include('Mailer')
+    expect(serviceIds).to.include('View')
+    expect(serviceIds).to.not.include('Demo1')
+
+    done()
+  })
+})

@@ -338,7 +338,16 @@ class Cation
    * @api public
    */
   findTaggedResourceIds(tagName) {
+    let providerRepository = this[__providerRepository__]
+    let resourceIds        = []
 
+    for (let [resourceId, provider] of providerRepository.entries()) {
+      if (provider.options.tags.includes(tagName)) {
+        resourceIds.push(resourceId)
+      }
+    }
+
+    return resourceIds
   }
 }
 

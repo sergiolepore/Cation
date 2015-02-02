@@ -485,6 +485,68 @@ console.log(container1.getId()) // c-1
 console.log(container2.getId()) // c-2
 ```
 
+### Working with tagged resources
+
+Tags are strings that can be applied to any service. By themselves, tags don't actually alter the functionality of your resources in any way, but can be really useful if you need to group resources to easily retrieve and manipulate them in some specific way.
+To enable this feature, just register a resource with an option `tag` equals to an array of strings.
+
+```js
+// https://github.com/wycats/handlebars.js
+container.register('Handlebars', Handlebars, {
+  type: 'static'
+})
+
+function HandlebarsCompiler(Handlebars) {
+  this.compile = function(source, data) {
+    var template = Handlebars.compile(source)
+
+    return template(data)
+  }
+}
+
+container.register('HandlebarsCompiler', HandlebarsCompiler, {
+  args: ['@Handlebars'],
+  tags: ['framework.view.compiler']
+})
+
+// somewhere,
+// in your awesome new JS framework...
+
+var compilerId = container.findTaggedResourceIds('framework.view.compiler').shift()
+
+container.get(compilerId).then(function(compiler) {
+  var source = loadHtmlSource() // load template files
+  var data   = loadTemplateData() // data to be injected inside of templates
+
+  var result = compiler.compile(source, data)
+})
+
+// now, if you want another compiler
+
+// https://github.com/paularmstrong/swig
+container.register('Swig', swig, {
+  type: 'static'
+})
+
+function SwigCompiler(Swig) {
+  this.compile = function(source, data) {
+    return Swig.render(source, { locals: data })
+  }
+}
+
+container.register('SwigCompiler', SwigCompiler, {
+  args: ['@Swig'],
+  tags: ['framework.view.compiler']
+})
+
+// you can do really cool things with this new feature. A little more complex example
+// could have been loading all tagged compilers and make them compile .hbs or
+// .swig templates, with just one function:
+// container.get(compilerId).then(function(compiler) { ... })
+
+// just go and make awesome things :)
+```
+
 ## Contributing
 
 Please, check the [Contributing.md document][contributing-url] for detailed info.
@@ -668,6 +730,19 @@ Type        | Description
 
 Removes all singleton instances from cache.
 
+### Cation.prototype.findTaggedResourceIds(tagName)
+
+Returns an array of resource IDs for a given tag.
+
+Parameters  | Type     | Description
+:-----------|:---------|:-----------
+**tagName** | *string* | The tag name.
+
+**Return**
+
+Type      | Description
+:---------|:-----------
+**Array** | An array of resource IDs.
 
 
 

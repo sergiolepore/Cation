@@ -1,5 +1,21 @@
 "use strict";
 
+var _slicedToArray = function (arr, i) {
+  if (Array.isArray(arr)) {
+    return arr;
+  } else {
+    var _arr = [];
+
+    for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
+      _arr.push(_step.value);
+
+      if (i && _arr.length === i) break;
+    }
+
+    return _arr;
+  }
+};
+
 var _prototypeProperties = function (child, staticProps, instanceProps) {
   if (staticProps) Object.defineProperties(child, staticProps);
   if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
@@ -440,7 +456,23 @@ var Cation = (function () {
        * @return {Array}
        * @api public
        */
-      value: function findTaggedResourceIds(tagName) {},
+      value: function findTaggedResourceIds(tagName) {
+        var providerRepository = this[__providerRepository__];
+        var resourceIds = [];
+
+        for (var _iterator = providerRepository.entries()[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
+          var _ref2 = _step.value;
+          var _ref22 = _slicedToArray(_ref2, 2);
+
+          var resourceId = _ref22[0];
+          var provider = _ref22[1];
+          if (provider.options.tags.includes(tagName)) {
+            resourceIds.push(resourceId);
+          }
+        }
+
+        return resourceIds;
+      },
       writable: true,
       enumerable: true,
       configurable: true
