@@ -1,46 +1,12 @@
 "use strict";
 
-var _slicedToArray = function (arr, i) {
-  if (Array.isArray(arr)) {
-    return arr;
-  } else {
-    var _arr = [];
+var _interopRequireWildcard = function (obj) { return obj && obj.__esModule ? obj : { "default": obj }; };
 
-    for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
-      _arr.push(_step.value);
+var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
 
-      if (i && _arr.length === i) break;
-    }
+var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } };
 
-    return _arr;
-  }
-};
-
-var _prototypeProperties = function (child, staticProps, instanceProps) {
-  if (staticProps) Object.defineProperties(child, staticProps);
-  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
-};
-
-var _extends = function (target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i];
-    for (var key in source) {
-      target[key] = source[key];
-    }
-  }
-
-  return target;
-};
-
-var _interopRequireWildcard = function (obj) {
-  return obj && obj.constructor === Object ? obj : {
-    "default": obj
-  };
-};
-
-var _interopRequire = function (obj) {
-  return obj && (obj["default"] || obj);
-};
+var _prototypeProperties = function (child, staticProps, instanceProps) { if (staticProps) Object.defineProperties(child, staticProps); if (instanceProps) Object.defineProperties(child.prototype, instanceProps); };
 
 /*! Module dependencies */
 var BasicProvider = _interopRequire(require("./providers/basicprovider"));
@@ -137,7 +103,6 @@ var Cation = (function () {
         return this[__containerId__];
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     register: {
@@ -197,7 +162,6 @@ var Cation = (function () {
         this[__providerRepository__].set(id, new Provider(this, id, resource, options));
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     get: {
@@ -257,7 +221,6 @@ var Cation = (function () {
         });
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     has: {
@@ -277,7 +240,6 @@ var Cation = (function () {
         return false;
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     remove: {
@@ -296,7 +258,6 @@ var Cation = (function () {
         this[__providerRepository__]["delete"](id);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     addProvider: {
@@ -318,7 +279,6 @@ var Cation = (function () {
         providerMap.set(name, providerFunction);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     hasProvider: {
@@ -334,7 +294,6 @@ var Cation = (function () {
         return this[__providerMap__].has(name);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     removeProvider: {
@@ -355,7 +314,6 @@ var Cation = (function () {
         providerMap["delete"](name);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     addDecorator: {
@@ -377,7 +335,6 @@ var Cation = (function () {
         decoratorMap.set(name, decoratorFunction);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     hasDecorator: {
@@ -392,7 +349,6 @@ var Cation = (function () {
         return this[__decoratorMap__].has(name);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     removeDecorator: {
@@ -413,7 +369,6 @@ var Cation = (function () {
         decoratorMap["delete"](name);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     isCached: {
@@ -430,7 +385,6 @@ var Cation = (function () {
         return this[__instanceCache__].has(id);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     clearCache: {
@@ -444,7 +398,6 @@ var Cation = (function () {
         this[__instanceCache__].clear();
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     findTaggedResourceIds: {
@@ -461,11 +414,10 @@ var Cation = (function () {
         var resourceIds = [];
 
         for (var _iterator = providerRepository.entries()[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
-          var _ref2 = _step.value;
-          var _ref22 = _slicedToArray(_ref2, 2);
+          var _step$value = _slicedToArray(_step.value, 2);
 
-          var resourceId = _ref22[0];
-          var provider = _ref22[1];
+          var resourceId = _step$value[0];
+          var provider = _step$value[1];
           if (provider.options.tags.includes(tagName)) {
             resourceIds.push(resourceId);
           }
@@ -474,7 +426,6 @@ var Cation = (function () {
         return resourceIds;
       },
       writable: true,
-      enumerable: true,
       configurable: true
     }
   });
@@ -482,12 +433,10 @@ var Cation = (function () {
   return Cation;
 })();
 
+// And here... we... GO.
 exports["default"] = Cation;
 // import Cation from 'cation'
 exports.BasicProvider = BasicProvider;
 // import { BasicProvider } from 'cation'
 // import Cation, { BasicProvider } from 'cation'
-
-
-// And here... we... GO.
-module.exports = _extends(exports["default"], exports);
+exports.__esModule = true;

@@ -1,3 +1,6 @@
 require("6to5/polyfill"); // load polyfills and stuff
 
-module.exports = require('./dist/cation.js');
+var CationModule = require('./dist/cation.js')
+
+module.exports        = CationModule.default;
+exports.BasicProvider = CationModule.BasicProvider

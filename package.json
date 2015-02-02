@@ -7,14 +7,14 @@
     "test": "make test"
   },
   "dependencies": {
-    "6to5": "^2.2.0"
+    "6to5": "^2.13.7"
   },
   "devDependencies": {
     "chai": "^1.10.0",
     "chai-as-promised": "^4.1.1",
     "del": "^1.1.1",
     "gulp": "^3.8.10",
-    "gulp-6to5": "^2.0.0",
+    "gulp-6to5": "^3.0.0",
     "gulp-concat": "^2.4.3",
     "gulp-jshint": "^1.9.0",
     "gulp-mocha": "^2.0.0",
