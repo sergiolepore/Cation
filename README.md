@@ -487,7 +487,7 @@ console.log(container2.getId()) // c-2
 
 ### Working with tagged resources
 
-Tags are strings that can be applied to any service. By themselves, tags don't actually alter the functionality of your resources in any way, but can be really useful if you need to group resources to easily retrieve and manipulate them in some specific way.
+Tags are strings that can be applied to any resource. By themselves, tags don't actually alter the functionality of your resources in any way, but can be really useful if you need to group resources to easily retrieve and manipulate them in some specific way.
 To enable this feature, just register a resource with an option `tag` equals to an array of strings.
 
 ```js
