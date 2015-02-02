@@ -1,10 +1,9 @@
 /*! Module dependencies */
-import BasicProvider        from './providers/basicprovider'
-import ServiceProvider      from './providers/serviceprovider'
-import FactoryProvider      from './providers/factoryprovider'
-import StaticProvider       from './providers/staticprovider'
-import * as decoratorUtils  from './helpers/decorator'
-// import * as loadingStack    from './helpers/loadingstack'
+import BasicProvider       from './providers/basicprovider'
+import ServiceProvider     from './providers/serviceprovider'
+import FactoryProvider     from './providers/factoryprovider'
+import StaticProvider      from './providers/staticprovider'
+import * as decoratorUtils from './helpers/decorator'
 
 /*! Private definitions */
 
@@ -19,36 +18,36 @@ var __containerId__ = Symbol()
 
 /**
  * Provider Repository.
- * An object used to store all registered resources, with their own config and ID.
+ * ResourceID/ProviderInstance Map object for Resource Providers.
  *
- * @type {Object}
+ * @type {Map}
  * @api private
  */
 var __providerRepository__ = Symbol()
 
 /**
  * Instance Cache.
- * An object used to store all singleton instances.
+ * ResourceID/Instance Map object for Singletons.
  *
- * @type {Object}
+ * @type {Map}
  * @api private
  */
 var __instanceCache__ = Symbol()
 
 /**
  * Provider Map.
- * An object used to map the provider names and classes.
+ * Name/Function Map object for Providers.
  *
- * @type {Object}
+ * @type {Map}
  * @api private
  */
 var __providerMap__ = Symbol()
 
 /**
  * Decorator Map.
- * An object used to map the decorator names and functions.
+ * Name/Function Map object for Decorators.
  *
- * @type {Object}
+ * @type {Map}
  * @api private
  */
 var __decoratorMap__ = Symbol()
@@ -62,12 +61,10 @@ class Cation
 {
   constructor({ id } = {}) {
     this[__containerId__]         = id
-    this[__providerRepository__]  = {}
-    this[__instanceCache__]       = {}
-    this[__providerMap__]         = {}
-    this[__decoratorMap__]        = {}
-
-    // loadingStack.init(this)
+    this[__providerRepository__]  = new Map()
+    this[__instanceCache__]       = new Map()
+    this[__providerMap__]         = new Map()
+    this[__decoratorMap__]        = new Map()
 
     this.addProvider('service', ServiceProvider)
     this.addProvider('factory', FactoryProvider)
@@ -137,9 +134,9 @@ class Cation
       throw new Error(`Unknown type: "${options.type}"`)
     }
 
-    let Provider = this[__providerMap__][options.type]
+    let Provider = this[__providerMap__].get(options.type)
 
-    this[__providerRepository__][id] = new Provider(this, id, resource, options)
+    this[__providerRepository__].set(id, new Provider(this, id, resource, options))
   }
 
   /**
@@ -155,25 +152,14 @@ class Cation
         return reject(new Error(`"${id}" resource not found`))
       }
 
-      // if (loadingStack.has(this, id)) {
-      //   return reject(new Error(`Error loading "${id}". Circular reference detected`))
-      // }
-
-      let provider    = this[__providerRepository__][id]
+      let provider    = this[__providerRepository__].get(id)
       let isSingleton = provider.options.isSingleton
 
       if (isSingleton && this.isCached(id)) {
-        return resolve(this[__instanceCache__][id])
+        return resolve(this[__instanceCache__].get(id))
       }
 
-      // loadingStack.push(this, id)
-
       provider.get().then(resource => {
-        // remove from loading stack. No more circular reference prevention
-        // loadingStack.remove(this, id)
-
-        return resource
-      }).then(resource => {
         // apply decorators
         let decoratorNames = provider.options.decorators
 
@@ -183,7 +169,7 @@ class Cation
 
         let decoratorFunctions = decoratorNames.map(name => {
           if (this.hasDecorator(name)) {
-            return this[__decoratorMap__][name]
+            return this[__decoratorMap__].get(name)
           }
         })
 
@@ -195,17 +181,15 @@ class Cation
       }).then(resource => {
         // store instance in cache if singleton
         if (isSingleton) {
-          this[__instanceCache__][id] = resource
+          this[__instanceCache__].set(id, resource)
         }
 
         return resource
       }).then(
         resource => resolve(resource)
-      ).catch(error => {
-        // loadingStack.remove(this, id)
-
-        return reject(error)
-      })
+      ).catch(
+        error => reject(error)
+      )
     })
   }
 
@@ -217,7 +201,7 @@ class Cation
    * @api public
    */
   has(id) {
-    if (this[__providerRepository__].hasOwnProperty(id)) {
+    if (this[__providerRepository__].has(id)) {
       return true
     }
 
@@ -235,7 +219,7 @@ class Cation
       return
     }
 
-    delete this[__providerRepository__][id]
+    this[__providerRepository__].delete(id)
   }
 
   /**
@@ -252,7 +236,7 @@ class Cation
       return
     }
 
-    providerMap[name] = providerFunction
+    providerMap.set(name, providerFunction)
   }
 
   /**
@@ -263,9 +247,7 @@ class Cation
    * @api public
    */
   hasProvider(name) {
-    let providerMap = this[__providerMap__]
-
-    return providerMap.hasOwnProperty(name)
+    return this[__providerMap__].has(name)
   }
 
   /**
@@ -281,7 +263,7 @@ class Cation
       return
     }
 
-    delete providerMap[name]
+    providerMap.delete(name)
   }
 
   /**
@@ -298,7 +280,7 @@ class Cation
       return
     }
 
-    decoratorMap[name] = decoratorFunction
+    decoratorMap.set(name, decoratorFunction)
   }
 
   /**
@@ -308,9 +290,7 @@ class Cation
    * @api public
    */
   hasDecorator(name) {
-    let decoratorMap = this[__decoratorMap__]
-
-    return decoratorMap.hasOwnProperty(name)
+    return this[__decoratorMap__].has(name)
   }
 
   /**
@@ -326,7 +306,7 @@ class Cation
       return
     }
 
-    delete decoratorMap[name]
+    decoratorMap.delete(name)
   }
 
   /**
@@ -338,9 +318,7 @@ class Cation
    * @api public
    */
   isCached(id) {
-    let instanceCache = this[__instanceCache__]
-
-    return instanceCache.hasOwnProperty(id)
+    return this[__instanceCache__].has(id)
   }
 
   /**
@@ -349,7 +327,7 @@ class Cation
    * @api public
    */
   clearCache() {
-    this[__instanceCache__] = {}
+    this[__instanceCache__].clear()
   }
 
   /**
