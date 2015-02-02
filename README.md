@@ -9,6 +9,7 @@ A fast and customizable `Dependency Injection Container` for [Node.js](http://no
 [![Gitter][gitter-image]][gitter-url]
 
 ```js
+var Cation    = require('cation')
 var container = new Cation()
 var Atom      = function() { /* Atom service! */ }
 
@@ -62,6 +63,7 @@ var Atom = function() { /* Atom constructor */ }
 And this is how you register the Atom constructor in the container:
 
 ```js
+var Cation    = require('cation')
 var container = new Cation()
 
 container.register('Atom', Atom)
