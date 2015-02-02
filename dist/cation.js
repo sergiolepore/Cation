@@ -172,6 +172,10 @@ var Cation = (function () {
           options.decorators = [];
         }
 
+        if (typeof options.tags === "undefined") {
+          options.tags = [];
+        }
+
         if (!this.hasProvider(options.type)) {
           throw new Error("Unknown type: \"" + options.type + "\"");
         }
@@ -446,6 +450,20 @@ var Cation = (function () {
       value: function clearCache() {
         this[__instanceCache__] = {};
       },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    findTaggedResourceIds: {
+
+      /**
+       * Returns an array of resource IDs for a given tag.
+       *
+       * @param {String}  tagName  The tag name.
+       * @return {Array}
+       * @api public
+       */
+      value: function findTaggedResourceIds(tagName) {},
       writable: true,
       enumerable: true,
       configurable: true

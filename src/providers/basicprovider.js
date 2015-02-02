@@ -18,6 +18,10 @@ class BasicProvider
       options.decorators = []
     }
 
+    if (typeof options.tags === 'undefined') {
+      options.tags = []
+    }
+
     this.container = container
     this.id        = id
     this.resource  = resource

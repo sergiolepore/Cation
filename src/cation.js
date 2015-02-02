@@ -129,6 +129,10 @@ class Cation
       options.decorators = []
     }
 
+    if (typeof options.tags === 'undefined') {
+      options.tags = []
+    }
+
     if (!this.hasProvider(options.type)) {
       throw new Error(`Unknown type: "${options.type}"`)
     }
@@ -346,6 +350,17 @@ class Cation
    */
   clearCache() {
     this[__instanceCache__] = {}
+  }
+
+  /**
+   * Returns an array of resource IDs for a given tag.
+   *
+   * @param {String}  tagName  The tag name.
+   * @return {Array}
+   * @api public
+   */
+  findTaggedResourceIds(tagName) {
+
   }
 }
 
