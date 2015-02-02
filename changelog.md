@@ -1,4 +1,9 @@
 
+## 2.1.0 (February 01, 2015)
+
+  * Added a new feature to tag resources. See [this](https://github.com/sergiolepore/Cation/blob/master/README.md#working-with-tagged-resources).
+  * Improved the internal container storage
+
 ## 2.0.3 (February 01, 2015)
 
 Removed useless dependencies and improved the build process.
