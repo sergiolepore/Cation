@@ -201,6 +201,7 @@ When you are registering a `service`, the available options are:
 - `singleton`: boolean option and `false` by default. If set to true, Cation will treat the resource as a singleton.
 - `args`: array option, `[]` by default. These are the arguments to apply to the service constructor. It only works if the `type` is `service`.
 - `decorators`: array option, `[]` by default. These are the names of the `Decorators` to be applied to the returned objects. You'll learn about this in the `Decorators` topic.
+- `tags`: array option, `[]` by default. You can use this feature to tag your services. You'll learn about this in `Working with tagged resources` section.
 
 Having known that, these options are the same:
 
@@ -310,6 +311,7 @@ The `Cation#register` method, when registering a factory resource, can take thes
 - `type`: you **MUST** set this option to `'factory'`.
 - `singleton`: boolean option, `false` by default. After the first factory execution, the instance will be stored as a singleton.
 - `decorators`: array option, `[]` by default. These are the names of the `Decorators` to be applied to the returned objects. You'll learn about this in the `Decorators` topic.
+- `tags`: array option, `[]` by default. You can use this feature to tag your factories. You'll learn about this in `Working with tagged resources` section.
 
 ### Static resources
 
@@ -330,6 +332,7 @@ container.register('Hydrogen', Element, {
 #### Options
 
 - `type`: you **MUST** set this option to `'static'`.
+- `tags`: array option, `[]` by default. You can use this feature to tag your resources. You'll learn about this in `Working with tagged resources` section.
 
 ### Decorators
 
