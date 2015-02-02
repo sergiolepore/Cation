@@ -9,7 +9,7 @@ If you need help with something, you can drop a message in the [official Gitter 
 
 1. Update to the most recent master release if possible. I may have already fixed your bug.
 2. Search for similar issues. It's possible somebody has encountered this bug already.
-3. Provide a [RequireBin][requirebin-url] demo that specifically shows the problem. This demo should be fully operational with the exception of the bug you want to demonstrate. If it is not possible to produce a RequireBin gist, please make sure you provide very specific steps to reproduce the error. If I cannot reproduce it, I will close the ticket.
+3. Provide a demo code, gist or very specific steps to reproduce the error. If I cannot reproduce it, I will close the ticket.
 4. Just wait until I verify the error and release a patch to correct it.
 
 ## Requesting a Feature
