@@ -78,19 +78,16 @@ var ServiceProvider = (function (BasicProvider) {
        */
       value: function get() {
         var _this = this;
-        return new Promise(function (resolve, reject) {
-          // resolve arguments
-          var serviceDepsPromise = util.resolveDependencies(_this.container, _this.options.args);
+        // resolve arguments
+        var serviceDepsPromise = util.resolveDependencies(this.container, this.options.args);
 
-          serviceDepsPromise.then(function (serviceDeps) {
-            serviceDeps.unshift(_this.resource);
+        return serviceDepsPromise.then(function (serviceDeps) {
+          serviceDeps.unshift(_this.resource);
 
-            var Resource = _this.resource.bind.apply(_this.resource, serviceDeps);
+          var Resource = _this.resource.bind.apply(_this.resource, serviceDeps);
 
-            return resolve(new Resource());
-          })["catch"](function (error) {
-            return reject(error);
-          });
+          // bubble a new Promise
+          return new Resource();
         });
       },
       writable: true,
