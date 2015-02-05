@@ -65,40 +65,40 @@ var decoratorUtils = _interopRequireWildcard(require("./helpers/decorator"));
 var __containerId__ = Symbol();
 
 /**
- * Provider Repository.
- * ResourceID/ProviderInstance Map object for Resource Providers.
+ * Provider Instances Map.
+ * "ResourceID/ProviderInstance" Map object for Resource Providers.
  *
  * @type {Map}
  * @api private
  */
-var __providerRepository__ = Symbol();
+var __providerInstancesMap__ = Symbol();
 
 /**
- * Instance Cache.
- * ResourceID/Instance Map object for Singletons.
+ * Resource Instances Map.
+ * "ResourceID/Instance" Map object for Singletons.
  *
  * @type {Map}
  * @api private
  */
-var __instanceCache__ = Symbol();
+var __resourceInstancesMap__ = Symbol();
 
 /**
- * Provider Map.
- * Name/Function Map object for Providers.
+ * Provider Constructors Map.
+ * "Name/Function" Map object for Providers.
  *
  * @type {Map}
  * @api private
  */
-var __providerMap__ = Symbol();
+var __providerConstructorsMap__ = Symbol();
 
 /**
- * Decorator Map.
- * Name/Function Map object for Decorators.
+ * Decorator Functions Map.
+ * "Name/Function" Map object for Decorators.
  *
  * @type {Map}
  * @api private
  */
-var __decoratorMap__ = Symbol();
+var __decoratorFunctionsMap__ = Symbol();
 
 /*! ========================================================================= */
 
@@ -110,10 +110,10 @@ var Cation = (function () {
     var _ref = arguments[0] === undefined ? {} : arguments[0];
     var id = _ref.id;
     this[__containerId__] = id;
-    this[__providerRepository__] = new Map();
-    this[__instanceCache__] = new Map();
-    this[__providerMap__] = new Map();
-    this[__decoratorMap__] = new Map();
+    this[__providerInstancesMap__] = new Map();
+    this[__resourceInstancesMap__] = new Map();
+    this[__providerConstructorsMap__] = new Map();
+    this[__decoratorFunctionsMap__] = new Map();
 
     this.addProvider("service", ServiceProvider);
     this.addProvider("factory", FactoryProvider);
@@ -192,9 +192,9 @@ var Cation = (function () {
           throw new Error("Unknown type: \"" + options.type + "\"");
         }
 
-        var Provider = this[__providerMap__].get(options.type);
+        var Provider = this[__providerConstructorsMap__].get(options.type);
 
-        this[__providerRepository__].set(id, new Provider(this, id, resource, options));
+        this[__providerInstancesMap__].set(id, new Provider(this, id, resource, options));
       },
       writable: true,
       enumerable: true,
@@ -216,11 +216,11 @@ var Cation = (function () {
             return reject(new Error("\"" + id + "\" resource not found"));
           }
 
-          var provider = _this[__providerRepository__].get(id);
+          var provider = _this[__providerInstancesMap__].get(id);
           var isSingleton = provider.options.isSingleton;
 
           if (isSingleton && _this.isCached(id)) {
-            return resolve(_this[__instanceCache__].get(id));
+            return resolve(_this[__resourceInstancesMap__].get(id));
           }
 
           provider.get().then(function (resource) {
@@ -233,7 +233,7 @@ var Cation = (function () {
 
             var decoratorFunctions = decoratorNames.map(function (name) {
               if (_this.hasDecorator(name)) {
-                return _this[__decoratorMap__].get(name);
+                return _this[__decoratorFunctionsMap__].get(name);
               }
             });
 
@@ -245,7 +245,7 @@ var Cation = (function () {
           }).then(function (resource) {
             // store instance in cache if singleton
             if (isSingleton) {
-              _this[__instanceCache__].set(id, resource);
+              _this[__resourceInstancesMap__].set(id, resource);
             }
 
             return resource;
@@ -270,7 +270,7 @@ var Cation = (function () {
        * @api public
        */
       value: function has(id) {
-        if (this[__providerRepository__].has(id)) {
+        if (this[__providerInstancesMap__].has(id)) {
           return true;
         }
 
@@ -293,7 +293,7 @@ var Cation = (function () {
           return;
         }
 
-        this[__providerRepository__]["delete"](id);
+        this[__providerInstancesMap__]["delete"](id);
       },
       writable: true,
       enumerable: true,
@@ -309,13 +309,13 @@ var Cation = (function () {
        * @api public
        */
       value: function addProvider(name, providerFunction) {
-        var providerMap = this[__providerMap__];
-
         if (this.hasProvider(name)) {
           return;
         }
 
-        providerMap.set(name, providerFunction);
+        var providerConstructorsMap = this[__providerConstructorsMap__];
+
+        providerConstructorsMap.set(name, providerFunction);
       },
       writable: true,
       enumerable: true,
@@ -331,7 +331,7 @@ var Cation = (function () {
        * @api public
        */
       value: function hasProvider(name) {
-        return this[__providerMap__].has(name);
+        return this[__providerConstructorsMap__].has(name);
       },
       writable: true,
       enumerable: true,
@@ -346,13 +346,13 @@ var Cation = (function () {
        * @api public
        */
       value: function removeProvider(name) {
-        var providerMap = this[__providerMap__];
-
         if (!this.hasProvider(name)) {
           return;
         }
 
-        providerMap["delete"](name);
+        var providerConstructorsMap = this[__providerConstructorsMap__];
+
+        providerConstructorsMap["delete"](name);
       },
       writable: true,
       enumerable: true,
@@ -368,13 +368,13 @@ var Cation = (function () {
        * @api public
        */
       value: function addDecorator(name, decoratorFunction) {
-        var decoratorMap = this[__decoratorMap__];
-
         if (this.hasDecorator(name)) {
           return;
         }
 
-        decoratorMap.set(name, decoratorFunction);
+        var decoratorFunctionsMap = this[__decoratorFunctionsMap__];
+
+        decoratorFunctionsMap.set(name, decoratorFunction);
       },
       writable: true,
       enumerable: true,
@@ -389,7 +389,7 @@ var Cation = (function () {
        * @api public
        */
       value: function hasDecorator(name) {
-        return this[__decoratorMap__].has(name);
+        return this[__decoratorFunctionsMap__].has(name);
       },
       writable: true,
       enumerable: true,
@@ -404,13 +404,13 @@ var Cation = (function () {
        * @api public
        */
       value: function removeDecorator(name) {
-        var decoratorMap = this[__decoratorMap__];
-
         if (!this.hasDecorator(name)) {
           return;
         }
 
-        decoratorMap["delete"](name);
+        var decoratorFunctionsMap = this[__decoratorFunctionsMap__];
+
+        decoratorFunctionsMap["delete"](name);
       },
       writable: true,
       enumerable: true,
@@ -427,7 +427,7 @@ var Cation = (function () {
        * @api public
        */
       value: function isCached(id) {
-        return this[__instanceCache__].has(id);
+        return this[__resourceInstancesMap__].has(id);
       },
       writable: true,
       enumerable: true,
@@ -441,7 +441,7 @@ var Cation = (function () {
        * @api public
        */
       value: function clearCache() {
-        this[__instanceCache__].clear();
+        this[__resourceInstancesMap__].clear();
       },
       writable: true,
       enumerable: true,
@@ -457,10 +457,10 @@ var Cation = (function () {
        * @api public
        */
       value: function findTaggedResourceIds(tagName) {
-        var providerRepository = this[__providerRepository__];
+        var providerInstancesMap = this[__providerInstancesMap__];
         var resourceIds = [];
 
-        for (var _iterator = providerRepository.entries()[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
+        for (var _iterator = providerInstancesMap.entries()[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
           var _ref2 = _step.value;
           var _ref22 = _slicedToArray(_ref2, 2);
 

@@ -17,40 +17,40 @@ import * as decoratorUtils from './helpers/decorator'
 var __containerId__ = Symbol()
 
 /**
- * Provider Repository.
- * ResourceID/ProviderInstance Map object for Resource Providers.
+ * Provider Instances Map.
+ * "ResourceID/ProviderInstance" Map object for Resource Providers.
  *
  * @type {Map}
  * @api private
  */
-var __providerRepository__ = Symbol()
+var __providerInstancesMap__ = Symbol()
 
 /**
- * Instance Cache.
- * ResourceID/Instance Map object for Singletons.
+ * Resource Instances Map.
+ * "ResourceID/Instance" Map object for Singletons.
  *
  * @type {Map}
  * @api private
  */
-var __instanceCache__ = Symbol()
+var __resourceInstancesMap__ = Symbol()
 
 /**
- * Provider Map.
- * Name/Function Map object for Providers.
+ * Provider Constructors Map.
+ * "Name/Function" Map object for Providers.
  *
  * @type {Map}
  * @api private
  */
-var __providerMap__ = Symbol()
+var __providerConstructorsMap__ = Symbol()
 
 /**
- * Decorator Map.
- * Name/Function Map object for Decorators.
+ * Decorator Functions Map.
+ * "Name/Function" Map object for Decorators.
  *
  * @type {Map}
  * @api private
  */
-var __decoratorMap__ = Symbol()
+var __decoratorFunctionsMap__ = Symbol()
 
 /*! ========================================================================= */
 
@@ -60,11 +60,11 @@ var __decoratorMap__ = Symbol()
 class Cation
 {
   constructor({ id } = {}) {
-    this[__containerId__]         = id
-    this[__providerRepository__]  = new Map()
-    this[__instanceCache__]       = new Map()
-    this[__providerMap__]         = new Map()
-    this[__decoratorMap__]        = new Map()
+    this[__containerId__]             = id
+    this[__providerInstancesMap__]    = new Map()
+    this[__resourceInstancesMap__]    = new Map()
+    this[__providerConstructorsMap__] = new Map()
+    this[__decoratorFunctionsMap__]   = new Map()
 
     this.addProvider('service', ServiceProvider)
     this.addProvider('factory', FactoryProvider)
@@ -134,9 +134,9 @@ class Cation
       throw new Error(`Unknown type: "${options.type}"`)
     }
 
-    let Provider = this[__providerMap__].get(options.type)
+    let Provider = this[__providerConstructorsMap__].get(options.type)
 
-    this[__providerRepository__].set(id, new Provider(this, id, resource, options))
+    this[__providerInstancesMap__].set(id, new Provider(this, id, resource, options))
   }
 
   /**
@@ -152,11 +152,11 @@ class Cation
         return reject(new Error(`"${id}" resource not found`))
       }
 
-      let provider    = this[__providerRepository__].get(id)
+      let provider    = this[__providerInstancesMap__].get(id)
       let isSingleton = provider.options.isSingleton
 
       if (isSingleton && this.isCached(id)) {
-        return resolve(this[__instanceCache__].get(id))
+        return resolve(this[__resourceInstancesMap__].get(id))
       }
 
       provider.get().then(resource => {
@@ -169,7 +169,7 @@ class Cation
 
         let decoratorFunctions = decoratorNames.map(name => {
           if (this.hasDecorator(name)) {
-            return this[__decoratorMap__].get(name)
+            return this[__decoratorFunctionsMap__].get(name)
           }
         })
 
@@ -181,7 +181,7 @@ class Cation
       }).then(resource => {
         // store instance in cache if singleton
         if (isSingleton) {
-          this[__instanceCache__].set(id, resource)
+          this[__resourceInstancesMap__].set(id, resource)
         }
 
         return resource
@@ -201,7 +201,7 @@ class Cation
    * @api public
    */
   has(id) {
-    if (this[__providerRepository__].has(id)) {
+    if (this[__providerInstancesMap__].has(id)) {
       return true
     }
 
@@ -219,7 +219,7 @@ class Cation
       return
     }
 
-    this[__providerRepository__].delete(id)
+    this[__providerInstancesMap__].delete(id)
   }
 
   /**
@@ -230,13 +230,13 @@ class Cation
    * @api public
    */
   addProvider(name, providerFunction) {
-    let providerMap = this[__providerMap__]
-
     if (this.hasProvider(name)) {
       return
     }
 
-    providerMap.set(name, providerFunction)
+    let providerConstructorsMap = this[__providerConstructorsMap__]
+
+    providerConstructorsMap.set(name, providerFunction)
   }
 
   /**
@@ -247,7 +247,7 @@ class Cation
    * @api public
    */
   hasProvider(name) {
-    return this[__providerMap__].has(name)
+    return this[__providerConstructorsMap__].has(name)
   }
 
   /**
@@ -257,13 +257,13 @@ class Cation
    * @api public
    */
   removeProvider(name) {
-    let providerMap = this[__providerMap__]
-
     if (!this.hasProvider(name)) {
       return
     }
 
-    providerMap.delete(name)
+    let providerConstructorsMap = this[__providerConstructorsMap__]
+
+    providerConstructorsMap.delete(name)
   }
 
   /**
@@ -274,13 +274,13 @@ class Cation
    * @api public
    */
   addDecorator(name, decoratorFunction) {
-    let decoratorMap = this[__decoratorMap__]
-
     if (this.hasDecorator(name)) {
       return
     }
 
-    decoratorMap.set(name, decoratorFunction)
+    let decoratorFunctionsMap = this[__decoratorFunctionsMap__]
+
+    decoratorFunctionsMap.set(name, decoratorFunction)
   }
 
   /**
@@ -290,7 +290,7 @@ class Cation
    * @api public
    */
   hasDecorator(name) {
-    return this[__decoratorMap__].has(name)
+    return this[__decoratorFunctionsMap__].has(name)
   }
 
   /**
@@ -300,13 +300,13 @@ class Cation
    * @api public
    */
   removeDecorator(name) {
-    let decoratorMap = this[__decoratorMap__]
-
     if (!this.hasDecorator(name)) {
       return
     }
 
-    decoratorMap.delete(name)
+    let decoratorFunctionsMap = this[__decoratorFunctionsMap__]
+
+    decoratorFunctionsMap.delete(name)
   }
 
   /**
@@ -318,7 +318,7 @@ class Cation
    * @api public
    */
   isCached(id) {
-    return this[__instanceCache__].has(id)
+    return this[__resourceInstancesMap__].has(id)
   }
 
   /**
@@ -327,7 +327,7 @@ class Cation
    * @api public
    */
   clearCache() {
-    this[__instanceCache__].clear()
+    this[__resourceInstancesMap__].clear()
   }
 
   /**
@@ -338,10 +338,10 @@ class Cation
    * @api public
    */
   findTaggedResourceIds(tagName) {
-    let providerRepository = this[__providerRepository__]
-    let resourceIds        = []
+    let providerInstancesMap = this[__providerInstancesMap__]
+    let resourceIds          = []
 
-    for (let [resourceId, provider] of providerRepository.entries()) {
+    for (let [resourceId, provider] of providerInstancesMap.entries()) {
       if (provider.options.tags.includes(tagName)) {
         resourceIds.push(resourceId)
       }
