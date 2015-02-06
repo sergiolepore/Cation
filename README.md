@@ -1,14 +1,13 @@
 ## Cation
 
-A fast and customizable `Dependency Injection Container` for [Node.js](http://nodejs.org)/[io.js](https://iojs.org/)
+A fast and customizable `Dependency Injection Container` for [Node.js](http://nodejs.org) / [io.js](https://iojs.org/)
 
-[![NPM Version][npm-image]][npm-url]
-[![NPM Downloads][downloads-image]][downloads-url]
-[![Build Status][travis-image]][travis-url]
-[![Donations][gratipay-image]][gratipay-url]
-[![Gitter][gitter-image]][gitter-url]
+[![NPM Version][npm-image]][npm-url] | [![Stack Share][stackshare-image]][stackshare-url] | [![NPM Downloads][downloads-image]][downloads-url]
+:---: | :---: | :---:
+[![Build Status][travis-image]][travis-url] | [![Donations][gratipay-image]][gratipay-url] |  [![Gitter][gitter-image]][gitter-url]
 
 ```js
+var Cation    = require('cation')
 var container = new Cation()
 var Atom      = function() { /* Atom service! */ }
 
@@ -21,9 +20,9 @@ container.get('Atom').then(function(atom) {
 
 ## Brief intro
 
-Cation is a powerful Dependency Injection Container (DIC). The first version was released on 2011-2012 as an unstable/experimental library and was inspired by the Symfony 2 container. [It only allowed a JSON schema to register a service (yeah, it was an ugly experiment)][original-cation-url]. There were no Factories, no Decorators. Just "Services".
+Cation is a powerful Dependency Injection Container (DIC). The first version was released in 2011-2012 as an unstable/experimental library and was inspired by the Symfony 2 container. [It only allowed a JSON schema to register a service (yeah, it was an ugly experiment)][original-cation-url]. There were no Factories, no Decorators. Just "Services".
 
-**The version 2 is a MUCH, MUCH BETTER EVOLUTION**, heavily inspired on these projects:
+**The version 2 is a MUCH, MUCH BETTER EVOLUTION**, heavily inspired by these projects:
 
 - [Symfony DIC][symfony-doc-url] - [API][symfony-api-url]
 - [Dependency Injection: the Ember.js way][ember-doc-url] - [API][ember-api-url]
@@ -62,6 +61,7 @@ var Atom = function() { /* Atom constructor */ }
 And this is how you register the Atom constructor in the container:
 
 ```js
+var Cation    = require('cation')
 var container = new Cation()
 
 container.register('Atom', Atom)
@@ -491,7 +491,7 @@ console.log(container2.getId()) // c-2
 ### Working with tagged resources
 
 Tags are strings that can be applied to any resource. By themselves, tags don't actually alter the functionality of your resources in any way, but can be really useful if you need to group them to easily retrieve and manipulate them in some specific way.
-To enable this feature, just register a resource with an option `tag` equals to an array of strings.
+To enable this feature, just register a resource with an option `tags` equals to an array of strings.
 
 ```js
 // https://github.com/wycats/handlebars.js
@@ -764,6 +764,8 @@ Type      | Description
 [gratipay-url]: https://gratipay.com/sergiolepore/
 [gitter-image]: https://badges.gitter.im/Join%20Chat.svg
 [gitter-url]: https://gitter.im/sergiolepore/Cation?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+[stackshare-image]: http://img.shields.io/badge/tech-stack-0690fa.svg?style=flat
+[stackshare-url]: http://stackshare.io/sergiolepore/cation
 [original-cation-url]: https://github.com/sergiolepore/Cation/blob/f57243df6678da06d483c55ece5e2a67e501ae97/README.md#usage
 [symfony-doc-url]: http://symfony.com/doc/current/components/dependency_injection/introduction.html
 [symfony-api-url]: http://api.symfony.com/2.7/Symfony/Component/DependencyInjection/ContainerBuilder.html

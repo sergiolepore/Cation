@@ -1,4 +1,13 @@
 
+## 2.1.3 (February 05, 2015)
+
+  * Updated documentation
+  * ES6 code improvements (internal)
+
+## 2.1.2 (February 02, 2015)
+
+Little improvement in documentation.
+
 ## 2.1.1 (February 01, 2015)
 
 Added missing documentation for 'tags' feature. Fixed a few typos in README.

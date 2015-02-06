@@ -1,5 +1,6 @@
 "use strict";
 
+exports.reducer = reducer;
 /*! Decorator Helper */
 
 /**
@@ -13,10 +14,8 @@
  * @param  {Functin} decoratorFunction Decorator.
  * @return {Object}                    The resource instance just decorated.
  */
-exports.reducer = reducer;
 function reducer(instance, decoratorFunction) {
   // each decorator must return the decorated instance.
   // this way it feeds the next decorator in the chain.
   return decoratorFunction(instance);
 }
-exports.__esModule = true;

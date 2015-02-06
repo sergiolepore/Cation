@@ -17,19 +17,16 @@ class ServiceProvider extends BasicProvider
    * @api public
    */
   get() {
-    return new Promise((resolve, reject) => {
-      // resolve arguments
-      let serviceDepsPromise = util.resolveDependencies(this.container, this.options.args)
+    // resolve arguments
+    let serviceDepsPromise = util.resolveDependencies(this.container, this.options.args)
 
-      serviceDepsPromise.then(serviceDeps => {
-        serviceDeps.unshift(this.resource)
+    return serviceDepsPromise.then(serviceDeps => {
+      serviceDeps.unshift(this.resource)
 
-        let Resource = this.resource.bind.apply(this.resource, serviceDeps)
+      let Resource = this.resource.bind.apply(this.resource, serviceDeps)
 
-        return resolve(new Resource())
-      }).catch(
-        error => reject(error)
-      )
+      // bubble a new Promise
+      return new Resource()
     })
   }
 }

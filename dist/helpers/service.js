@@ -1,5 +1,6 @@
 "use strict";
 
+exports.resolveDependencies = resolveDependencies;
 /*! Service helper */
 
 /**
@@ -11,7 +12,6 @@
  * @param {Array}  resourceArguments=[] An array of Resource arguments
  * @api public
  */
-exports.resolveDependencies = resolveDependencies;
 function resolveDependencies(container) {
   var resourceArguments = arguments[1] === undefined ? [] : arguments[1];
   return new Promise(function (resolve, reject) {
@@ -76,4 +76,3 @@ function resolveArgument(container, argument) {
 
   return actions[resolverAction](resolverValue);
 }
-exports.__esModule = true;

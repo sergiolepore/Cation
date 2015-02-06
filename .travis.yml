@@ -4,7 +4,7 @@ language: node_js
 node_js:
   - 0.10
   - 0.11
-  # - iojs-v1 oops! the iojs support will be rolling on feb. 3, 2015!
+# - iojs-v1
 
 before_install:
   - npm install -g gulp

@@ -16,9 +16,7 @@ class StaticProvider extends BasicProvider
    * @api public
    */
   get() {
-    return new Promise(resolve => {
-      return resolve(this.resource)
-    })
+    return new Promise(resolve => resolve(this.resource))
   }
 }
 
