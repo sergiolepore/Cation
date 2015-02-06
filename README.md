@@ -2,11 +2,9 @@
 
 A fast and customizable `Dependency Injection Container` for [Node.js](http://nodejs.org) / [io.js](https://iojs.org/)
 
-[![NPM Version][npm-image]][npm-url]
-[![NPM Downloads][downloads-image]][downloads-url]
-[![Build Status][travis-image]][travis-url]
-[![Donations][gratipay-image]][gratipay-url]
-[![Gitter][gitter-image]][gitter-url]
+[![NPM Version][npm-image]][npm-url] | [![Stack Share][stackshare-image]][stackshare-url] | [![NPM Downloads][downloads-image]][downloads-url]
+:---: | :---: | :---:
+[![Build Status][travis-image]][travis-url] | [![Donations][gratipay-image]][gratipay-url] |  [![Gitter][gitter-image]][gitter-url]
 
 ```js
 var Cation    = require('cation')
@@ -766,6 +764,8 @@ Type      | Description
 [gratipay-url]: https://gratipay.com/sergiolepore/
 [gitter-image]: https://badges.gitter.im/Join%20Chat.svg
 [gitter-url]: https://gitter.im/sergiolepore/Cation?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+[stackshare-image]: http://img.shields.io/badge/tech-stack-0690fa.svg?style=flat
+[stackshare-url]: http://stackshare.io/sergiolepore/cation
 [original-cation-url]: https://github.com/sergiolepore/Cation/blob/f57243df6678da06d483c55ece5e2a67e501ae97/README.md#usage
 [symfony-doc-url]: http://symfony.com/doc/current/components/dependency_injection/introduction.html
 [symfony-api-url]: http://api.symfony.com/2.7/Symfony/Component/DependencyInjection/ContainerBuilder.html
