@@ -1,6 +1,12 @@
-require("6to5/polyfill"); // load polyfills and stuff
 
-var CationModule = require('./dist/cation.js')
+if (!global._6to5Polyfill) {
+  require("6to5/polyfill"); // load polyfills and stuff
+}
 
-module.exports        = CationModule.default;
-exports.BasicProvider = CationModule.BasicProvider
+var CationES6Module = require('./dist/cation.js')
+
+// for normal/CommonJS support
+module.exports = CationES6Module.default
+
+// 6to5 support
+exports = CationES6Module

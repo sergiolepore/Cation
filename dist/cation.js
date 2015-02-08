@@ -1,46 +1,14 @@
 "use strict";
 
-var _slicedToArray = function (arr, i) {
-  if (Array.isArray(arr)) {
-    return arr;
-  } else {
-    var _arr = [];
+var _interopRequireWildcard = function (obj) { return obj && obj.__esModule ? obj : { "default": obj }; };
 
-    for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
-      _arr.push(_step.value);
+var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
 
-      if (i && _arr.length === i) break;
-    }
+var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } };
 
-    return _arr;
-  }
-};
+var _prototypeProperties = function (child, staticProps, instanceProps) { if (staticProps) Object.defineProperties(child, staticProps); if (instanceProps) Object.defineProperties(child.prototype, instanceProps); };
 
-var _prototypeProperties = function (child, staticProps, instanceProps) {
-  if (staticProps) Object.defineProperties(child, staticProps);
-  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
-};
-
-var _extends = function (target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i];
-    for (var key in source) {
-      target[key] = source[key];
-    }
-  }
-
-  return target;
-};
-
-var _interopRequireWildcard = function (obj) {
-  return obj && obj.constructor === Object ? obj : {
-    "default": obj
-  };
-};
-
-var _interopRequire = function (obj) {
-  return obj && (obj["default"] || obj);
-};
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
 
 /*! Module dependencies */
 var BasicProvider = _interopRequire(require("./providers/basicprovider"));
@@ -109,6 +77,8 @@ var Cation = (function () {
   function Cation() {
     var _ref = arguments[0] === undefined ? {} : arguments[0];
     var id = _ref.id;
+    _classCallCheck(this, Cation);
+
     this[__containerId__] = id;
     this[__providerInstancesMap__] = new Map();
     this[__resourceInstancesMap__] = new Map();
@@ -137,7 +107,6 @@ var Cation = (function () {
         return this[__containerId__];
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     register: {
@@ -197,7 +166,6 @@ var Cation = (function () {
         this[__providerInstancesMap__].set(id, new Provider(this, id, resource, options));
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     get: {
@@ -257,7 +225,6 @@ var Cation = (function () {
         });
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     has: {
@@ -277,7 +244,6 @@ var Cation = (function () {
         return false;
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     remove: {
@@ -296,7 +262,6 @@ var Cation = (function () {
         this[__providerInstancesMap__]["delete"](id);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     addProvider: {
@@ -318,7 +283,6 @@ var Cation = (function () {
         providerConstructorsMap.set(name, providerFunction);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     hasProvider: {
@@ -334,7 +298,6 @@ var Cation = (function () {
         return this[__providerConstructorsMap__].has(name);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     removeProvider: {
@@ -355,7 +318,6 @@ var Cation = (function () {
         providerConstructorsMap["delete"](name);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     addDecorator: {
@@ -377,7 +339,6 @@ var Cation = (function () {
         decoratorFunctionsMap.set(name, decoratorFunction);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     hasDecorator: {
@@ -392,7 +353,6 @@ var Cation = (function () {
         return this[__decoratorFunctionsMap__].has(name);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     removeDecorator: {
@@ -413,7 +373,6 @@ var Cation = (function () {
         decoratorFunctionsMap["delete"](name);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     isCached: {
@@ -430,7 +389,6 @@ var Cation = (function () {
         return this[__resourceInstancesMap__].has(id);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     clearCache: {
@@ -444,7 +402,6 @@ var Cation = (function () {
         this[__resourceInstancesMap__].clear();
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     findTaggedResourceIds: {
@@ -461,11 +418,10 @@ var Cation = (function () {
         var resourceIds = [];
 
         for (var _iterator = providerInstancesMap.entries()[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
-          var _ref2 = _step.value;
-          var _ref22 = _slicedToArray(_ref2, 2);
+          var _step$value = _slicedToArray(_step.value, 2);
 
-          var resourceId = _ref22[0];
-          var provider = _ref22[1];
+          var resourceId = _step$value[0];
+          var provider = _step$value[1];
           if (provider.options.tags.includes(tagName)) {
             resourceIds.push(resourceId);
           }
@@ -474,7 +430,6 @@ var Cation = (function () {
         return resourceIds;
       },
       writable: true,
-      enumerable: true,
       configurable: true
     }
   });
@@ -482,12 +437,10 @@ var Cation = (function () {
   return Cation;
 })();
 
+// And here... we... GO.
 exports["default"] = Cation;
 // import Cation from 'cation'
 exports.BasicProvider = BasicProvider;
 // import { BasicProvider } from 'cation'
 // import Cation, { BasicProvider } from 'cation'
-
-
-// And here... we... GO.
-module.exports = _extends(exports["default"], exports);
+exports.__esModule = true;

@@ -1,11 +1,15 @@
 "use strict";
 
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
 /**
  * Basic Provider.
  * Intended as an Abstract Class. All providers must extend from this.
  */
 var BasicProvider = function BasicProvider(container, id, resource) {
   var options = arguments[3] === undefined ? {} : arguments[3];
+  _classCallCheck(this, BasicProvider);
+
   if (!container || container.constructor.name !== "Cation") {
     throw new Error("Invalid container instance");
   }
