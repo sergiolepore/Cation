@@ -26,7 +26,7 @@ class GhostProvider extends BasicProvider
 
     this.container.register(
       `${id}-gravestone`,
-      `Here lies ${id}. ${date}. RIP`,
+      `Here lies ${id}. ${date} - ${date}. RIP`,
       { type: 'static' }
     )
   }
