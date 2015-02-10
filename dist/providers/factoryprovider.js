@@ -20,7 +20,7 @@ var FactoryProvider = (function (BasicProvider) {
     var options = arguments[3] === undefined ? {} : arguments[3];
     _classCallCheck(this, FactoryProvider);
 
-    _get(BasicProvider.prototype, "constructor", this).call(this, container, id, resource, options);
+    _get(Object.getPrototypeOf(FactoryProvider.prototype), "constructor", this).call(this, container, id, resource, options);
   }
 
   _inherits(FactoryProvider, BasicProvider);

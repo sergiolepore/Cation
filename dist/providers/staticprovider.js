@@ -20,7 +20,7 @@ var StaticProvider = (function (BasicProvider) {
     var options = arguments[3] === undefined ? {} : arguments[3];
     _classCallCheck(this, StaticProvider);
 
-    _get(BasicProvider.prototype, "constructor", this).call(this, container, id, resource, options);
+    _get(Object.getPrototypeOf(StaticProvider.prototype), "constructor", this).call(this, container, id, resource, options);
   }
 
   _inherits(StaticProvider, BasicProvider);

@@ -19,4 +19,6 @@ function reducer(instance, decoratorFunction) {
   // this way it feeds the next decorator in the chain.
   return decoratorFunction(instance);
 }
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});

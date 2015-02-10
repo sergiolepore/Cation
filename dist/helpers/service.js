@@ -76,4 +76,6 @@ function resolveArgument(container, argument) {
 
   return actions[resolverAction](resolverValue);
 }
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});

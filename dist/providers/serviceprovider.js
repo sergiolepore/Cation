@@ -24,7 +24,7 @@ var ServiceProvider = (function (BasicProvider) {
     var options = arguments[3] === undefined ? {} : arguments[3];
     _classCallCheck(this, ServiceProvider);
 
-    _get(BasicProvider.prototype, "constructor", this).call(this, container, id, resource, options);
+    _get(Object.getPrototypeOf(ServiceProvider.prototype), "constructor", this).call(this, container, id, resource, options);
   }
 
   _inherits(ServiceProvider, BasicProvider);

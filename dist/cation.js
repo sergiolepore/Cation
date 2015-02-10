@@ -443,4 +443,6 @@ exports["default"] = Cation;
 exports.BasicProvider = BasicProvider;
 // import { BasicProvider } from 'cation'
 // import Cation, { BasicProvider } from 'cation'
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
