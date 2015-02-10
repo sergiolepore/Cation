@@ -185,7 +185,7 @@ var Cation = (function () {
           }
 
           var provider = _this[__providerInstancesMap__].get(id);
-          var isSingleton = provider.options.isSingleton;
+          var isSingleton = provider.options.singleton;
 
           if (isSingleton && _this.isCached(id)) {
             return resolve(_this[__resourceInstancesMap__].get(id));

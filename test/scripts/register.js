@@ -138,4 +138,46 @@ describe('Register a resource on the container:', function(){
 
     done()
   })
+
+  it('should store singleton resources', function(done) {
+    container.register('SingletonService', DemoService, {
+      singleton: true
+    })
+
+    container.get('SingletonService').then(function(service) {
+      service.newProperty = 'Hi! I\'ll be here forever :)'
+
+      return container.get('SingletonService')
+    }).then(function(service) {
+      expect(
+        service.newProperty
+      ).to.be.equal('Hi! I\'ll be here forever :)')
+
+      done()
+    }).catch(function(error) {
+      done(error)
+    })
+  })
+
+  it('should not store non singleton resources', function(done) {
+    container.register('NonSingletonService', DemoService)
+
+    container.get('NonSingletonService').then(function(service) {
+      service.newProperty = 'Hi... I\'ll not last forever :('
+
+      return container.get('NonSingletonService')
+    }).then(function(service) {
+      expect(
+        service.newProperty
+      ).to.not.be.equal('Hi... I\'ll not last forever :(')
+
+      expect(
+        service.newProperty
+      ).to.be.equal(undefined)
+
+      done()
+    }).catch(function(error) {
+      done(error)
+    })
+  })
 })

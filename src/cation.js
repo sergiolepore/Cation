@@ -153,7 +153,7 @@ class Cation
       }
 
       let provider    = this[__providerInstancesMap__].get(id)
-      let isSingleton = provider.options.isSingleton
+      let isSingleton = provider.options.singleton
 
       if (isSingleton && this.isCached(id)) {
         return resolve(this[__resourceInstancesMap__].get(id))
