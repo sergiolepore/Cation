@@ -1,4 +1,10 @@
 
+## 2.2.0 (February 09, 2015)
+
+  * [Enhancement] upgrade 6to5 to v3
+  * [Feature] expose BasicProvider class. See ES6 examples directory.
+  * [Documentation] added `EcmaScript 6` examples.
+
 ## 2.1.3 (February 05, 2015)
 
   * Updated documentation
