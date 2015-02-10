@@ -59,7 +59,7 @@ container.register('Water', Compound, {
   args: ['Water', 'H2O', '@Hydrogen', '@Oxygen', '@Hydrogen']
 })
 
-container.get('Water').then(function(molecule) {
+container.get('Water').then(molecule => {
   console.log(molecule.formula) // H2O
   console.log(molecule.molarMass) // 18.015
 })
