@@ -22,7 +22,7 @@ export default ServiceC
 // custom_factory.js
 import ServiceC from 'service_c'
 
-export function CustomFactory(container) {
+export default function CustomFactory(container) {
   let depencencyAPromise = container.get('ServiceA')
   let dependencyBPromise = container.get('ServiceB')
 
