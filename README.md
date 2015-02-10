@@ -177,6 +177,8 @@ container.register('Something', Something, {
 
 By doing this, your service will receive a new _ServiceReference_ object as a first argument and "@NormalStringArgument" as a second argument.
 
+**Psst!** [Click here][es6example-services-01] to see this example using ES6 syntax.
+
 #### Singletons
 
 Enabling this pattern is as easy as setting an option named `singleton` to `true`.
@@ -312,6 +314,8 @@ The `Cation#register` method, when registering a factory resource, can take thes
 - `singleton`: boolean option, `false` by default. After the first factory execution, the instance will be stored as a singleton.
 - `decorators`: array option, `[]` by default. These are the names of the `Decorators` to be applied to the returned objects. You'll learn about this in the `Decorators` topic.
 - `tags`: array option, `[]` by default. You can use this feature to tag your factories. You'll learn about this in `Working with tagged resources` section.
+
+**Psst!** [Click here][es6example-factories-01] to see this example using ES6 syntax.
 
 ### Static resources
 
@@ -475,6 +479,7 @@ container.get('DeadResource').then(function(resource) {
   console.log(gravestone) // Here lies DeadResource. Wed Jan 28 2015 - Wed Jan 28 2015. RIP
 })
 ```
+**Psst!** [Click here][es6example-custom_providers-01] to see this example using ES6 syntax.
 
 ### Identifying every container instance
 
@@ -553,6 +558,10 @@ container.register('SwigCompiler', SwigCompiler, {
 ## Contributing
 
 Please, check the [Contributing.md document][contributing-url] for detailed info.
+
+## ES6 Examples (WIP)
+
+[Here][es6examples-url]
 
 ## License
 
@@ -775,3 +784,8 @@ Type      | Description
 [angular-api-url]: https://docs.angularjs.org/api/ng/type/angular.Module
 [contributing-url]: https://github.com/sergiolepore/Cation/blob/master/Contributing.md
 [license-url]: https://github.com/sergiolepore/Cation/blob/master/LICENSE
+
+[es6examples-url]: https://github.com/sergiolepore/Cation/tree/master/es6examples
+[es6example-services-01]: https://github.com/sergiolepore/Cation/blob/master/es6examples/01-services/01-Dependency_Injection.md
+[es6example-factories-01]: https://github.com/sergiolepore/Cation/blob/master/es6examples/02-factories/01-Custom_Factory.md
+[es6example-custom_providers-01]: https://github.com/sergiolepore/Cation/blob/master/es6examples/03-custom_providers/01-Custom_Provider.md
