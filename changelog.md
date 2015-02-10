@@ -1,4 +1,9 @@
 
+## 2.2.1 (February 10, 2015)
+
+  * [Bugfix] Singleton behaviour wasn't working at all. Fixes #10
+  * [Refactor] ES6 syntactic sugar
+
 ## 2.2.0 (February 09, 2015)
 
   * [Enhancement] upgrade 6to5 to v3
