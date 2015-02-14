@@ -16,8 +16,6 @@ describe('User-defined `static` resources:', function() {
       ).to.be.equal(value)
 
       done()
-    }).catch(function(error) {
-      done(error)
-    })
+    }).catch(done)
   })
 })

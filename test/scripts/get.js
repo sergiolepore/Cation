@@ -1,4 +1,4 @@
-describe('Get an entity from the container:', function(){
+describe('Get a resource from the container:', function(){
   require('./get/basic')
   require('./get/service')
   require('./get/factory')

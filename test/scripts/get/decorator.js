@@ -30,8 +30,6 @@ describe('User-defined Decorators:', function() {
       ).to.be.equal('Hi! I\'m a new property from decoratorB')
 
       done()
-    }).catch(function(error) {
-      done(error)
-    })
+    }).catch(done)
   })
 })

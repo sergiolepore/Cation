@@ -46,8 +46,6 @@ describe('User-defined `factory` resources:', function() {
       )
 
       done()
-    }).catch(function(error) {
-      done(error)
-    })
+    }).catch(done)
   })
 })

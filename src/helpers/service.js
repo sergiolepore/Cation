@@ -22,11 +22,10 @@ export function resolveDependencies(container, resourceArguments=[]) {
     )
 
     // try to resolve all promises in the array
-    Promise.all(resolvedArguments).then(
-      serviceArgs => resolve(serviceArgs)
-    ).catch(
-      error => reject(error)
-    )
+    Promise
+      .all(resolvedArguments)
+      .then(resolve)
+      .catch(reject)
   })
 }
 

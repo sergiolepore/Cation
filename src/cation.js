@@ -1,9 +1,10 @@
 /*! Module dependencies */
-import BasicProvider       from './providers/basicprovider'
-import ServiceProvider     from './providers/serviceprovider'
-import FactoryProvider     from './providers/factoryprovider'
-import StaticProvider      from './providers/staticprovider'
-import * as decoratorUtils from './helpers/decorator'
+import BasicProvider          from './providers/basicprovider'
+import ServiceProvider        from './providers/serviceprovider'
+import FactoryProvider        from './providers/factoryprovider'
+import StaticProvider         from './providers/staticprovider'
+import * as decoratorUtils    from './helpers/decorator'
+import * as subcontainerUtils from './helpers/subcontainer'
 
 /*! Private definitions */
 
@@ -52,6 +53,15 @@ var __providerConstructorsMap__ = Symbol()
  */
 var __decoratorFunctionsMap__ = Symbol()
 
+/**
+ * SubContainers Map.
+ * "Namespace/Cation Instance" Map object for SubContainers.
+ *
+ * @type {Map}
+ * @api private
+ */
+var __subContainainersMap__ = Symbol()
+
 /*! ========================================================================= */
 
 /**
@@ -65,6 +75,7 @@ class Cation
     this[__resourceInstancesMap__]    = new Map()
     this[__providerConstructorsMap__] = new Map()
     this[__decoratorFunctionsMap__]   = new Map()
+    this[__subContainainersMap__]     = new Map()
 
     this.addProvider('service', ServiceProvider)
     this.addProvider('factory', FactoryProvider)
@@ -104,6 +115,16 @@ class Cation
   register(id, resource, options={}) {
     if (!id) {
       throw new Error('`id` is required')
+    }
+    // Detect ids like "foo:bar"
+    // subcontainerNamespace  : foo
+    // subcontainerResourceId : bar
+    let { subcontainerNamespace, subcontainerResourceId } = subcontainerUtils.extractNamespace(id)
+
+    if (subcontainerNamespace) {
+      let subcontainer = this.getSubcontainer(subcontainerNamespace) || this.createSubcontainer(subcontainerNamespace)
+
+      return subcontainer.register(subcontainerResourceId, resource, options)
     }
 
     if (!resource) {
@@ -147,6 +168,16 @@ class Cation
    * @api public
    */
   get(id) {
+    // Detect ids like "foo:bar"
+    // subcontainerNamespace  : foo
+    // subcontainerResourceId : bar
+    let { subcontainerNamespace, subcontainerResourceId } = subcontainerUtils.extractNamespace(id)
+
+    if (this.hasSubcontainer(subcontainerNamespace)) {
+      return this.getSubcontainer(subcontainerNamespace).get(subcontainerResourceId)
+    }
+
+    // no subcontainer matches, proceed with the current one...
     return new Promise((resolve, reject) => {
       if (!this.has(id)) {
         return reject(new Error(`"${id}" resource not found`))
@@ -185,11 +216,9 @@ class Cation
         }
 
         return resource
-      }).then(
-        resource => resolve(resource)
-      ).catch(
-        error => reject(error)
-      )
+      })
+      .then(resolve)
+      .catch(reject)
     })
   }
 
@@ -234,9 +263,7 @@ class Cation
       return
     }
 
-    let providerConstructorsMap = this[__providerConstructorsMap__]
-
-    providerConstructorsMap.set(name, providerFunction)
+    this[__providerConstructorsMap__].set(name, providerFunction)
   }
 
   /**
@@ -261,9 +288,7 @@ class Cation
       return
     }
 
-    let providerConstructorsMap = this[__providerConstructorsMap__]
-
-    providerConstructorsMap.delete(name)
+    this[__providerConstructorsMap__].delete(name)
   }
 
   /**
@@ -278,9 +303,7 @@ class Cation
       return
     }
 
-    let decoratorFunctionsMap = this[__decoratorFunctionsMap__]
-
-    decoratorFunctionsMap.set(name, decoratorFunction)
+    this[__decoratorFunctionsMap__].set(name, decoratorFunction)
   }
 
   /**
@@ -304,9 +327,7 @@ class Cation
       return
     }
 
-    let decoratorFunctionsMap = this[__decoratorFunctionsMap__]
-
-    decoratorFunctionsMap.delete(name)
+    this[__decoratorFunctionsMap__].delete(name)
   }
 
   /**
@@ -327,7 +348,13 @@ class Cation
    * @api public
    */
   clearCache() {
+    let subcontainersMap = this[__subContainainersMap__]
+
     this[__resourceInstancesMap__].clear()
+
+    subcontainersMap.forEach(subcontainer => {
+      subcontainer.clearCache()
+    })
   }
 
   /**
@@ -341,13 +368,75 @@ class Cation
     let providerInstancesMap = this[__providerInstancesMap__]
     let resourceIds          = []
 
-    for (let [resourceId, provider] of providerInstancesMap.entries()) {
+    providerInstancesMap.forEach((provider, resourceId) => {
       if (provider.options.tags.includes(tagName)) {
         resourceIds.push(resourceId)
       }
-    }
+    })
 
     return resourceIds
+  }
+
+  /**
+   * Create a new container inside the current one.
+   *
+   * @param {String}  subcontainerId  The subcontainer ID. Required.
+   * @return {Cation}  A new Cation instance.
+   * @api public
+   */
+  createSubcontainer(subcontainerId) {
+    let subcontainer = new Cation({ id: subcontainerId })
+
+    this.attachSubcontainer(subcontainer)
+
+    return subcontainer
+  }
+
+  /**
+   * Registers a new container inside the current one.
+   *
+   * @param {Cation}  container  A Cation instance
+   * @api public
+   */
+  attachSubcontainer(container) {
+    let subcontainerId = container.getId()
+
+    if (!subcontainerId) {
+      throw new Error('The subcontainer must have an ID.')
+    }
+
+    if (this.hasSubcontainer(subcontainerId)) {
+      throw new Error(`There's already a subcontainer with ID "${subcontainerId}"`)
+    }
+
+    this[__subContainainersMap__].set(subcontainerId, container)
+  }
+
+  /**
+   * Checks if a given subcontainer is registered inside the current one.
+   *
+   * @param {String}  subcontainerId  Subcontainer ID.
+   * @return {Boolean}
+   * @api public
+   */
+  hasSubcontainer(subcontainerId) {
+    return this[__subContainainersMap__].has(subcontainerId)
+  }
+
+  getSubcontainer(subcontainerId) {
+    return this[__subContainainersMap__].get(subcontainerId)
+  }
+
+  detachSubcontainer(subcontainerId) {
+    if (!this.hasSubcontainer(subcontainerId)) {
+      return
+    }
+
+    this[__subContainainersMap__].delete(subcontainerId)
+  }
+
+  detachAllSubcontainers() {
+    this[__subContainainersMap__].clear()
   }
 }
 

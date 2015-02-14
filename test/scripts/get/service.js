@@ -27,9 +27,7 @@ describe('User-defined `service` resources:', function() {
       )
 
       done()
-    }).catch(function(error) {
-      done(error)
-    })
+    }).catch(done)
   })
 
   it('should apply registered services as dependencies', function(done) {
@@ -62,8 +60,6 @@ describe('User-defined `service` resources:', function() {
       )
 
       done()
-    }).catch(function(error) {
-      done(error)
-    })
+    }).catch(done)
   })
 })

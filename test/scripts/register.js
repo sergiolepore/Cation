@@ -154,9 +154,7 @@ describe('Register a resource on the container:', function(){
       ).to.be.equal('Hi! I\'ll be here forever :)')
 
       done()
-    }).catch(function(error) {
-      done(error)
-    })
+    }).catch(done)
   })
 
   it('should not store non singleton resources', function(done) {
@@ -176,8 +174,6 @@ describe('Register a resource on the container:', function(){
       ).to.be.equal(undefined)
 
       done()
-    }).catch(function(error) {
-      done(error)
-    })
+    }).catch(done)
   })
 })

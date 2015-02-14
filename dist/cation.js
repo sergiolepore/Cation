@@ -4,8 +4,6 @@ var _interopRequireWildcard = function (obj) { return obj && obj.__esModule ? ob
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
 
-var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } };
-
 var _prototypeProperties = function (child, staticProps, instanceProps) { if (staticProps) Object.defineProperties(child, staticProps); if (instanceProps) Object.defineProperties(child.prototype, instanceProps); };
 
 var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
@@ -20,6 +18,8 @@ var FactoryProvider = _interopRequire(require("./providers/factoryprovider"));
 var StaticProvider = _interopRequire(require("./providers/staticprovider"));
 
 var decoratorUtils = _interopRequireWildcard(require("./helpers/decorator"));
+
+var subcontainerUtils = _interopRequireWildcard(require("./helpers/subcontainer"));
 
 /*! Private definitions */
 
@@ -68,6 +68,15 @@ var __providerConstructorsMap__ = Symbol();
  */
 var __decoratorFunctionsMap__ = Symbol();
 
+/**
+ * SubContainers Map.
+ * "Namespace/Cation Instance" Map object for SubContainers.
+ *
+ * @type {Map}
+ * @api private
+ */
+var __subContainainersMap__ = Symbol();
+
 /*! ========================================================================= */
 
 /**
@@ -84,6 +93,7 @@ var Cation = (function () {
     this[__resourceInstancesMap__] = new Map();
     this[__providerConstructorsMap__] = new Map();
     this[__decoratorFunctionsMap__] = new Map();
+    this[__subContainainersMap__] = new Map();
 
     this.addProvider("service", ServiceProvider);
     this.addProvider("factory", FactoryProvider);
@@ -132,6 +142,20 @@ var Cation = (function () {
         if (!id) {
           throw new Error("`id` is required");
         }
+        // Detect ids like "foo:bar"
+        // subcontainerNamespace  : foo
+        // subcontainerResourceId : bar
+        var _subcontainerUtils$extractNamespace = subcontainerUtils.extractNamespace(id);
+
+        var subcontainerNamespace = _subcontainerUtils$extractNamespace.subcontainerNamespace;
+        var subcontainerResourceId = _subcontainerUtils$extractNamespace.subcontainerResourceId;
+
+
+        if (subcontainerNamespace) {
+          var subcontainer = this.getSubcontainer(subcontainerNamespace) || this.createSubcontainer(subcontainerNamespace);
+
+          return subcontainer.register(subcontainerResourceId, resource, options);
+        }
 
         if (!resource) {
           throw new Error("`resource` is required");
@@ -179,6 +203,20 @@ var Cation = (function () {
        */
       value: function get(id) {
         var _this = this;
+        // Detect ids like "foo:bar"
+        // subcontainerNamespace  : foo
+        // subcontainerResourceId : bar
+        var _subcontainerUtils$extractNamespace = subcontainerUtils.extractNamespace(id);
+
+        var subcontainerNamespace = _subcontainerUtils$extractNamespace.subcontainerNamespace;
+        var subcontainerResourceId = _subcontainerUtils$extractNamespace.subcontainerResourceId;
+
+
+        if (this.hasSubcontainer(subcontainerNamespace)) {
+          return this.getSubcontainer(subcontainerNamespace).get(subcontainerResourceId);
+        }
+
+        // no subcontainer matches, proceed with the current one...
         return new Promise(function (resolve, reject) {
           if (!_this.has(id)) {
             return reject(new Error("\"" + id + "\" resource not found"));
@@ -217,11 +255,7 @@ var Cation = (function () {
             }
 
             return resource;
-          }).then(function (resource) {
-            return resolve(resource);
-          })["catch"](function (error) {
-            return reject(error);
-          });
+          }).then(resolve)["catch"](reject);
         });
       },
       writable: true,
@@ -278,9 +312,7 @@ var Cation = (function () {
           return;
         }
 
-        var providerConstructorsMap = this[__providerConstructorsMap__];
-
-        providerConstructorsMap.set(name, providerFunction);
+        this[__providerConstructorsMap__].set(name, providerFunction);
       },
       writable: true,
       configurable: true
@@ -313,9 +345,7 @@ var Cation = (function () {
           return;
         }
 
-        var providerConstructorsMap = this[__providerConstructorsMap__];
-
-        providerConstructorsMap["delete"](name);
+        this[__providerConstructorsMap__]["delete"](name);
       },
       writable: true,
       configurable: true
@@ -334,9 +364,7 @@ var Cation = (function () {
           return;
         }
 
-        var decoratorFunctionsMap = this[__decoratorFunctionsMap__];
-
-        decoratorFunctionsMap.set(name, decoratorFunction);
+        this[__decoratorFunctionsMap__].set(name, decoratorFunction);
       },
       writable: true,
       configurable: true
@@ -368,9 +396,7 @@ var Cation = (function () {
           return;
         }
 
-        var decoratorFunctionsMap = this[__decoratorFunctionsMap__];
-
-        decoratorFunctionsMap["delete"](name);
+        this[__decoratorFunctionsMap__]["delete"](name);
       },
       writable: true,
       configurable: true
@@ -399,7 +425,13 @@ var Cation = (function () {
        * @api public
        */
       value: function clearCache() {
+        var subcontainersMap = this[__subContainainersMap__];
+
         this[__resourceInstancesMap__].clear();
+
+        subcontainersMap.forEach(function (subcontainer) {
+          subcontainer.clearCache();
+        });
       },
       writable: true,
       configurable: true
@@ -417,17 +449,96 @@ var Cation = (function () {
         var providerInstancesMap = this[__providerInstancesMap__];
         var resourceIds = [];
 
-        for (var _iterator = providerInstancesMap.entries()[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
-          var _step$value = _slicedToArray(_step.value, 2);
-
-          var resourceId = _step$value[0];
-          var provider = _step$value[1];
+        providerInstancesMap.forEach(function (provider, resourceId) {
           if (provider.options.tags.includes(tagName)) {
             resourceIds.push(resourceId);
           }
-        }
+        });
 
         return resourceIds;
+      },
+      writable: true,
+      configurable: true
+    },
+    createSubcontainer: {
+
+      /**
+       * Create a new container inside the current one.
+       *
+       * @param {String}  subcontainerId  The subcontainer ID. Required.
+       * @return {Cation}  A new Cation instance.
+       * @api public
+       */
+      value: function createSubcontainer(subcontainerId) {
+        var subcontainer = new Cation({ id: subcontainerId });
+
+        this.attachSubcontainer(subcontainer);
+
+        return subcontainer;
+      },
+      writable: true,
+      configurable: true
+    },
+    attachSubcontainer: {
+
+      /**
+       * Registers a new container inside the current one.
+       *
+       * @param {Cation}  container  A Cation instance
+       * @api public
+       */
+      value: function attachSubcontainer(container) {
+        var subcontainerId = container.getId();
+
+        if (!subcontainerId) {
+          throw new Error("The subcontainer must have an ID.");
+        }
+
+        if (this.hasSubcontainer(subcontainerId)) {
+          throw new Error("There's already a subcontainer with ID \"" + subcontainerId + "\"");
+        }
+
+        this[__subContainainersMap__].set(subcontainerId, container);
+      },
+      writable: true,
+      configurable: true
+    },
+    hasSubcontainer: {
+
+      /**
+       * Checks if a given subcontainer is registered inside the current one.
+       *
+       * @param {String}  subcontainerId  Subcontainer ID.
+       * @return {Boolean}
+       * @api public
+       */
+      value: function hasSubcontainer(subcontainerId) {
+        return this[__subContainainersMap__].has(subcontainerId);
+      },
+      writable: true,
+      configurable: true
+    },
+    getSubcontainer: {
+      value: function getSubcontainer(subcontainerId) {
+        return this[__subContainainersMap__].get(subcontainerId);
+      },
+      writable: true,
+      configurable: true
+    },
+    detachSubcontainer: {
+      value: function detachSubcontainer(subcontainerId) {
+        if (!this.hasSubcontainer(subcontainerId)) {
+          return;
+        }
+
+        this[__subContainainersMap__]["delete"](subcontainerId);
+      },
+      writable: true,
+      configurable: true
+    },
+    detachAllSubcontainers: {
+      value: function detachAllSubcontainers() {
+        this[__subContainainersMap__].clear();
       },
       writable: true,
       configurable: true

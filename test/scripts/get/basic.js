@@ -14,9 +14,7 @@ describe('Container as a service:', function() {
       ).to.be.equal(originalContainerId)
 
       done()
-    }).catch(function(error) {
-      done(error)
-    })
+    }).catch(done)
   })
 
   it('should return the container reference on `get(\'container\')`', function(done) {
@@ -36,9 +34,7 @@ describe('Container as a service:', function() {
       ).to.be.equal('Lorem Ipsum Value')
 
       done()
-    }).catch(function(error) {
-      done(error)
-    })
+    }).catch(done)
   })
 })
 
@@ -53,42 +49,6 @@ describe('Retrieving invalid services:', function() {
       '"'+resourceId+'" resource not found'
     ).notify(done)
   })
-
-  // it('should return an error if the resource has a circular dependency (1)', function(done) {
-  //   var container   = new Cation()
-  //   var resourceId1 = 'Service1'
-  //   var resourceId2 = 'Service2'
-  //
-  //   var Service1 = function() {}
-  //   var Service2 = function() {}
-  //
-  //   container.register(resourceId1, Service1, { args: ['@'+resourceId2] })
-  //   container.register(resourceId2, Service2, { args: ['@'+resourceId1] })
-  //
-  //   var getPromise = container.get(resourceId1)
-  //
-  //   expect(
-  //     getPromise
-  //   ).to.be.rejectedWith(
-  //     'Error loading "'+resourceId1+'". Circular reference detected'
-  //   ).notify(done)
-  // })
-  //
-  // it('should return an error if the resource has a circular dependency (2)', function(done) {
-  //   var container   = new Cation()
-  //   var resourceId  = 'Service'
-  //   var Service     = function() {}
-  //
-  //   container.register(resourceId, Service, { args: ['@'+resourceId] })
-  //
-  //   var getPromise = container.get(resourceId)
-  //
-  //   expect(
-  //     getPromise
-  //   ).to.be.rejectedWith(
-  //     'Error loading "'+resourceId+'". Circular reference detected'
-  //   ).notify(done)
-  // })
 })
 
 describe('Working with tagged resources:', function() {
@@ -106,5 +66,76 @@ describe('Working with tagged resources:', function() {
     expect(serviceIds).to.not.include('Demo1')
 
     done()
+  })
+})
+
+describe('Working with subcontainers:', function() {
+  it('should register and retrieve foo:bar using a subcontainer', function(done) {
+    var container = new Cation()
+
+    container.register('foo:bar', 'bar value', { type: 'static' })
+
+    var subcontainerPromises = [
+      container.get('foo:bar'),
+      container.getSubcontainer('foo').get('bar')
+    ]
+
+    expect(
+      Promise.all(subcontainerPromises)
+    ).to.eventually.eql(
+      ['bar value', 'bar value']
+    ).notify(done)
+  })
+
+  it('should not retrieve invalid subcontainer resources', function(done) {
+    var container = new Cation()
+
+    container.register('foo:bar', 'bar value', { type: 'static' })
+
+    expect(
+      container.get('foo:baz')
+    ).to.be.rejectedWith(
+      '"baz" resource not found'
+    ).notify(done)
+  })
+
+  it('should retrieve foo:bar even if it was registered progratically', function(done) {
+    var mainContainer = new Cation()
+    var subcontainer  = new Cation({ id: 'foo' })
+
+    subcontainer.register('bar', 'bar value', { type: 'static' })
+
+    mainContainer.attachSubcontainer(subcontainer)
+
+    var subcontainerPromises = [
+      mainContainer.get('foo:bar'),
+      mainContainer.getSubcontainer('foo').get('bar')
+    ]
+
+    expect(
+      Promise.all(subcontainerPromises)
+    ).to.eventually.eql(
+      ['bar value', 'bar value']
+    ).notify(done)
+  })
+
+  it('should resolve dependencies in subcontainers', function(done) {
+    var container   = new Cation()
+    var DemoService = function(barValue) {
+      this.dependency = barValue
+    }
+
+    container.register('foo:bar', 'bar value', { type: 'static' })
+    container.register('DemoService', DemoService, {
+      args: ['@foo:bar']
+    })
+
+    container.get('DemoService').then(function(demoService) {
+      expect(
+        demoService.dependency
+      ).to.be.equal('bar value')
+
+      done()
+    }).catch(done)
   })
 })

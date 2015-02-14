@@ -29,8 +29,6 @@ describe('User-defined Providers:', function() {
       ).to.be.equal('Hi! I\'m a value stored by the custom resolver')
 
       done()
-    }).catch(function(error) {
-      done(error)
-    })
+    }).catch(done)
   })
 })

@@ -26,11 +26,7 @@ function resolveDependencies(container) {
     });
 
     // try to resolve all promises in the array
-    Promise.all(resolvedArguments).then(function (serviceArgs) {
-      return resolve(serviceArgs);
-    })["catch"](function (error) {
-      return reject(error);
-    });
+    Promise.all(resolvedArguments).then(resolve)["catch"](reject);
   });
 }
 
