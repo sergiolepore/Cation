@@ -3,11 +3,11 @@
 /*! subcontainer helper */
 
 /**
- * Detect ids like "foo:bar"
- * subcontainerNamespace  : foo
- * subcontainerResourceId : bar
+ * Detects and extracts ids like "foo:bar"
  *
- * @param {[type]} resourceId [description]
+ * @param {String} resourceId Resource ID.
+ * @return {Object} { subcontainerNamespace: foo, subcontainerResourceId : bar }
+ * @api public
  */
 exports.extractNamespace = extractNamespace;
 function extractNamespace(resourceId) {
