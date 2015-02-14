@@ -1,7 +1,10 @@
 /*! subcontainer helper */
 
 /**
- * [extractNamespace description]
+ * Detect ids like "foo:bar"
+ * subcontainerNamespace  : foo
+ * subcontainerResourceId : bar
+ *
  * @param {[type]} resourceId [description]
  */
 export function extractNamespace(resourceId) {

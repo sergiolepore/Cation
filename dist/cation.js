@@ -142,9 +142,7 @@ var Cation = (function () {
         if (!id) {
           throw new Error("`id` is required");
         }
-        // Detect ids like "foo:bar"
-        // subcontainerNamespace  : foo
-        // subcontainerResourceId : bar
+
         var _subcontainerUtils$extractNamespace = subcontainerUtils.extractNamespace(id);
 
         var subcontainerNamespace = _subcontainerUtils$extractNamespace.subcontainerNamespace;
@@ -203,9 +201,6 @@ var Cation = (function () {
        */
       value: function get(id) {
         var _this = this;
-        // Detect ids like "foo:bar"
-        // subcontainerNamespace  : foo
-        // subcontainerResourceId : bar
         var _subcontainerUtils$extractNamespace = subcontainerUtils.extractNamespace(id);
 
         var subcontainerNamespace = _subcontainerUtils$extractNamespace.subcontainerNamespace;
@@ -271,6 +266,16 @@ var Cation = (function () {
        * @api public
        */
       value: function has(id) {
+        var _subcontainerUtils$extractNamespace = subcontainerUtils.extractNamespace(id);
+
+        var subcontainerNamespace = _subcontainerUtils$extractNamespace.subcontainerNamespace;
+        var subcontainerResourceId = _subcontainerUtils$extractNamespace.subcontainerResourceId;
+
+
+        if (this.hasSubcontainer(subcontainerNamespace)) {
+          return this.getSubcontainer(subcontainerNamespace).has(subcontainerResourceId);
+        }
+
         if (this[__providerInstancesMap__].has(id)) {
           return true;
         }
@@ -412,6 +417,16 @@ var Cation = (function () {
        * @api public
        */
       value: function isCached(id) {
+        var _subcontainerUtils$extractNamespace = subcontainerUtils.extractNamespace(id);
+
+        var subcontainerNamespace = _subcontainerUtils$extractNamespace.subcontainerNamespace;
+        var subcontainerResourceId = _subcontainerUtils$extractNamespace.subcontainerResourceId;
+
+
+        if (this.hasSubcontainer(subcontainerNamespace)) {
+          return this.getSubcontainer(subcontainerNamespace).isCached(subcontainerResourceId);
+        }
+
         return this[__resourceInstancesMap__].has(id);
       },
       writable: true,
@@ -447,12 +462,21 @@ var Cation = (function () {
        */
       value: function findTaggedResourceIds(tagName) {
         var providerInstancesMap = this[__providerInstancesMap__];
+        var subcontainersMap = this[__subContainainersMap__];
         var resourceIds = [];
 
         providerInstancesMap.forEach(function (provider, resourceId) {
           if (provider.options.tags.includes(tagName)) {
             resourceIds.push(resourceId);
           }
+        });
+
+        subcontainersMap.forEach(function (subcontainer) {
+          var subcontainerIds = subcontainer.findTaggedResourceIds(tagName).map(function (resourceId) {
+            return "" + subcontainer.getId() + ":" + resourceId;
+          });
+
+          resourceIds = resourceIds.concat(subcontainerIds);
         });
 
         return resourceIds;
@@ -519,6 +543,14 @@ var Cation = (function () {
       configurable: true
     },
     getSubcontainer: {
+
+      /**
+       * Returns a subcontainer.
+       *
+       * @param {String}  subcontainerId  Subcontainer ID.
+       * @return {Cation}
+       * @api public
+       */
       value: function getSubcontainer(subcontainerId) {
         return this[__subContainainersMap__].get(subcontainerId);
       },
@@ -526,6 +558,13 @@ var Cation = (function () {
       configurable: true
     },
     detachSubcontainer: {
+
+      /**
+       * Removes a subcontainer.
+       *
+       * @param {String}  subcontainerId  Subcontainer ID.
+       * @api public
+       */
       value: function detachSubcontainer(subcontainerId) {
         if (!this.hasSubcontainer(subcontainerId)) {
           return;
@@ -537,6 +576,12 @@ var Cation = (function () {
       configurable: true
     },
     detachAllSubcontainers: {
+
+      /**
+       * Removes all subcontainers.
+       *
+       * @api public
+       */
       value: function detachAllSubcontainers() {
         this[__subContainainersMap__].clear();
       },

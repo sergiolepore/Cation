@@ -116,9 +116,7 @@ class Cation
     if (!id) {
       throw new Error('`id` is required')
     }
-    // Detect ids like "foo:bar"
-    // subcontainerNamespace  : foo
-    // subcontainerResourceId : bar
+
     let { subcontainerNamespace, subcontainerResourceId } = subcontainerUtils.extractNamespace(id)
 
     if (subcontainerNamespace) {
@@ -168,9 +166,6 @@ class Cation
    * @api public
    */
   get(id) {
-    // Detect ids like "foo:bar"
-    // subcontainerNamespace  : foo
-    // subcontainerResourceId : bar
     let { subcontainerNamespace, subcontainerResourceId } = subcontainerUtils.extractNamespace(id)
 
     if (this.hasSubcontainer(subcontainerNamespace)) {
@@ -230,6 +225,12 @@ class Cation
    * @api public
    */
   has(id) {
+    let { subcontainerNamespace, subcontainerResourceId } = subcontainerUtils.extractNamespace(id)
+
+    if (this.hasSubcontainer(subcontainerNamespace)) {
+      return this.getSubcontainer(subcontainerNamespace).has(subcontainerResourceId)
+    }
+
     if (this[__providerInstancesMap__].has(id)) {
       return true
     }
@@ -339,6 +340,12 @@ class Cation
    * @api public
    */
   isCached(id) {
+    let { subcontainerNamespace, subcontainerResourceId } = subcontainerUtils.extractNamespace(id)
+
+    if (this.hasSubcontainer(subcontainerNamespace)) {
+      return this.getSubcontainer(subcontainerNamespace).isCached(subcontainerResourceId)
+    }
+
     return this[__resourceInstancesMap__].has(id)
   }
 
@@ -366,12 +373,21 @@ class Cation
    */
   findTaggedResourceIds(tagName) {
     let providerInstancesMap = this[__providerInstancesMap__]
+    let subcontainersMap     = this[__subContainainersMap__]
     let resourceIds          = []
 
     providerInstancesMap.forEach((provider, resourceId) => {
       if (provider.options.tags.includes(tagName)) {
         resourceIds.push(resourceId)
       }
+    })
+
+    subcontainersMap.forEach(subcontainer => {
+      let subcontainerIds = subcontainer
+        .findTaggedResourceIds(tagName)
+        .map(resourceId => `${subcontainer.getId()}:${resourceId}`)
+
+      resourceIds = resourceIds.concat(subcontainerIds)
     })
 
     return resourceIds
@@ -423,10 +439,23 @@ class Cation
     return this[__subContainainersMap__].has(subcontainerId)
   }
 
+  /**
+   * Returns a subcontainer.
+   *
+   * @param {String}  subcontainerId  Subcontainer ID.
+   * @return {Cation}
+   * @api public
+   */
   getSubcontainer(subcontainerId) {
     return this[__subContainainersMap__].get(subcontainerId)
   }
 
+  /**
+   * Removes a subcontainer.
+   *
+   * @param {String}  subcontainerId  Subcontainer ID.
+   * @api public
+   */
   detachSubcontainer(subcontainerId) {
     if (!this.hasSubcontainer(subcontainerId)) {
       return
@@ -435,6 +464,11 @@ class Cation
     this[__subContainainersMap__].delete(subcontainerId)
   }
 
+  /**
+   * Removes all subcontainers.
+   *
+   * @api public
+   */
   detachAllSubcontainers() {
     this[__subContainainersMap__].clear()
   }
