@@ -5,7 +5,7 @@ process.stdout.setMaxListeners(Infinity)
 var gulp        = require('gulp')
 var jshint      = require('gulp-jshint')
 var mocha       = require('gulp-mocha')
-var to5         = require('gulp-6to5')
+var to5         = require('gulp-babel')
 var plumber     = require('gulp-plumber')
 var runSequence = require('run-sequence')
 var del         = require('del')
@@ -26,7 +26,7 @@ gulp.task('clean', function(callback) {
 })
 
 /* Compile ES6 to ES5 */
-gulp.task('6to5', function() {
+gulp.task('babel', function() {
   return gulp
     .src([sourceDir])
     .pipe(plumber())
@@ -73,7 +73,7 @@ gulp.task('jshint', function(){
 gulp.task('compile-then-test', function(callback) {
   runSequence(
     'clean',
-    '6to5',
+    'babel',
     'jshint',
     'mocha',
     callback
@@ -89,4 +89,4 @@ gulp.task('watch', function(){
 
 gulp.task('test', ['compile-then-test'])
 
-gulp.task('default', ['6to5', 'watch'])
+gulp.task('default', ['babel', 'watch'])

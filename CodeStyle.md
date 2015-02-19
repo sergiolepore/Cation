@@ -219,9 +219,9 @@ import * as decoratorUtils from 'helpers/decorator'
 
 ## ES6 Features
 
-You can use whatever ES6/ES6+ feature you want. But always make sure 6to5 can translate it to ES5 or has a polyfill for that. For example, _arrow functions_ [can be translated][arrowf-url]. _Symbols_ are supported via [polyfill][symbols-url].
+You can use whatever ES6/ES6+ feature you want. But always make sure [Babel][babel-url] can translate it to ES5 or has a polyfill for that. For example, _arrow functions_ [can be translated][arrowf-url]. _Symbols_ are supported via [polyfill][symbols-url].
 
-**Important:** By default, 6to5 comes with all the polyfills provided by the [_core.js_][core-url] project. Don't load any other polyfills unless they are extremely necessary.
+**Important:** By default, Babel comes with all the polyfills provided by the [_core.js_][core-url] project. Don't load any other polyfills unless they are extremely necessary.
 
 ## Arrow Functions
 
@@ -276,8 +276,8 @@ if (true) {
 
 
 
-
+[babel-url]: http://babeljs.io/
 [crockford-url]: http://javascript.crockford.com/code.html
-[arrowf-url]: http://6to5.org/docs/learn-es6/#arrows
+[arrowf-url]: http://babeljs.io/docs/learn-es6/#arrows
 [symbols-url]: https://github.com/zloirock/core-js#ecmascript-6-symbols
 [core-url]: https://github.com/zloirock/core-js
