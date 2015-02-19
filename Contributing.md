@@ -28,12 +28,12 @@ If you need help with something, you can drop a message in the [official Gitter 
 3. Make sure your editor supports _editorconfig.org_ config files.
 4. Install `gulp` and `mocha` globally. `npm i -g gulp` and `npm i -g mocha`.
 5. `cd` into Cation directory and type `npm install` in your console. Then type `gulp`. A _file watcher_ will keep running in foreground.
-6. The only two places where Cation lives are `src/` and `test/`. **Do not edit anything inside `dist/`.** This directory contains the transpiled [_ES6_][es6-url] files to _ES5_, performed by [6to5][6to5-url].
-7. Write using ES6 syntax inside `src/`. Everytime you save a file, _6to5_ will transpile everything to ES5 code. Then, [_Mocha_][mocha-url] will run all the test units.
+6. The only two places where Cation lives are `src/` and `test/`. **Do not edit anything inside `dist/`.** This directory contains the transpiled [_ES6_][es6-url] files to _ES5_, performed by [Babel][babel-url].
+7. Write using ES6 syntax inside `src/`. Everytime you save a file, _Babel_ will transpile everything to ES5 code. Then, [_Mocha_][mocha-url] will run all the test units.
 8. Write using ES5 syntax inside `test/`. Everytime you save a file, _Mocha_ will run all the test units.
 9. Whenever you add/modify/delete anything but documentation, **make sure the tests are not failing**. If something you are writing is not covered by the existing tests, add a new test.
 10. Double check the test results.
-11. Commit your changes both manually made and those made by 6to5. Use a descriptive message.
+11. Commit your changes both manually made and those made by Babel. Use a descriptive message.
 12. Push your changes to your fork and submit a Pull Request. Provide some explanation of why you made the changes you made.
 
 ## Code Style
@@ -52,6 +52,6 @@ Check the [CodeStyle.md][codestyle-url] document for more info.
 [requirebin-url]: http://requirebin.com/
 [cation-repo-url]: https://github.com/sergiolepore/Cation
 [es6-url]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
-[6to5-url]: https://6to5.org/
+[babel-url]: https://babeljs.io/
 [mocha-url]: http://mochajs.org/
 [codestyle-url]: https://github.com/sergiolepore/Cation/blob/master/CodeStyle.md

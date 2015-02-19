@@ -1,6 +1,6 @@
 
-if (!global._6to5Polyfill) {
-  require("6to5/polyfill"); // load polyfills and stuff
+if (!global._babelPolyfill) {
+  require("babel/polyfill"); // load polyfills and stuff
 }
 
 var CationES6Module = require('./dist/cation.js')
@@ -8,5 +8,5 @@ var CationES6Module = require('./dist/cation.js')
 // for normal/CommonJS support
 module.exports = CationES6Module.default
 
-// 6to5 support
+// babel support
 exports = CationES6Module
