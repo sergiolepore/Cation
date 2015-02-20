@@ -1,6 +1,8 @@
 var expect = require('chai').expect
 var Cation = require('../../../index.js')
 
+var ResourceNotFoundError = Cation.ResourceNotFoundError
+
 describe('Container as a service:', function() {
   it('should return the same container on `get(\'container\')`', function(done) {
     var originalContainerId = 'container-id'
@@ -46,6 +48,7 @@ describe('Retrieving invalid services:', function() {
     expect(
       container.get(resourceId)
     ).to.be.rejectedWith(
+      ResourceNotFoundError,
       '"'+resourceId+'" resource not found'
     ).notify(done)
   })

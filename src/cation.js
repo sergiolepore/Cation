@@ -5,6 +5,7 @@ import FactoryProvider        from './providers/factoryprovider'
 import StaticProvider         from './providers/staticprovider'
 import * as decoratorUtils    from './helpers/decorator'
 import * as subcontainerUtils from './helpers/subcontainer'
+import ResourceNotFoundError  from './errors/resourcenotfounderror'
 
 /*! Private definitions */
 
@@ -166,16 +167,36 @@ class Cation
    * @api public
    */
   get(id) {
+    // "foo:bar" => { "foo", "bar" }
     let { subcontainerNamespace, subcontainerResourceId } = subcontainerUtils.extractNamespace(id)
 
+    // check if "foo" subcontainer for "foo:bar" exists.
+    // if so, try to retrieve "bar" from it.
     if (this.hasSubcontainer(subcontainerNamespace)) {
-      return this.getSubcontainer(subcontainerNamespace).get(subcontainerResourceId)
+      // immediately return the subcontainer#get promise
+      return this
+        .getSubcontainer(subcontainerNamespace)
+        .get(subcontainerResourceId)
+        .catch(error => {
+          // when the error is thrown in a subcontainer resource,
+          // ensure the full resourceId is returned.
+          // Bad: container.get('foo:bar') -> `"bar" resource not found`
+          // Expected: container.get('foo:bar') -> `"foo:bar" resource not found`
+          if (error.constructor.name === 'ResourceNotFoundError') {
+            let fullResourceId = `${subcontainerNamespace}:${subcontainerResourceId}`
+
+            error = new ResourceNotFoundError(`"${fullResourceId}" resource not found`)
+          }
+
+          // error bubbling
+          return Promise.reject(error)
+        })
     }
 
     // no subcontainer matches, proceed with the current one...
     return new Promise((resolve, reject) => {
       if (!this.has(id)) {
-        return reject(new Error(`"${id}" resource not found`))
+        return reject(new ResourceNotFoundError(`"${id}" resource not found`))
       }
 
       let provider    = this[__providerInstancesMap__].get(id)
@@ -245,6 +266,12 @@ class Cation
    * @api public
    */
   remove(id) {
+    let { subcontainerNamespace, subcontainerResourceId } = subcontainerUtils.extractNamespace(id)
+
+    if (this.hasSubcontainer(subcontainerNamespace)) {
+      return this.getSubcontainer(subcontainerNamespace).remove(subcontainerResourceId)
+    }
+
     if (!this.has(id)) {
       return
     }
@@ -475,6 +502,5 @@ class Cation
 }
 
 // And here... we... GO.
-export default Cation    // import Cation from 'cation'
-export { BasicProvider } // import { BasicProvider } from 'cation'
-                         // import Cation, { BasicProvider } from 'cation'
+export default Cation
+export { BasicProvider, ResourceNotFoundError }

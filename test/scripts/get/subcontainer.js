@@ -1,6 +1,8 @@
 var expect = require('chai').expect
 var Cation = require('../../../index.js')
 
+var ResourceNotFoundError = Cation.ResourceNotFoundError
+
 describe('Working with subcontainers:', function() {
   it('should register and retrieve foo:bar using a subcontainer', function(done) {
     var container = new Cation()
@@ -27,7 +29,8 @@ describe('Working with subcontainers:', function() {
     expect(
       container.get('foo:baz')
     ).to.be.rejectedWith(
-      '"baz" resource not found'
+      ResourceNotFoundError,
+      '"foo:baz" resource not found'
     ).notify(done)
   })
 

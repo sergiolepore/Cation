@@ -4,8 +4,6 @@ var _interopRequireWildcard = function (obj) { return obj && obj.__esModule ? ob
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
 
-var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
-
 var _prototypeProperties = function (child, staticProps, instanceProps) { if (staticProps) Object.defineProperties(child, staticProps); if (instanceProps) Object.defineProperties(child.prototype, instanceProps); };
 
 var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
@@ -22,6 +20,8 @@ var StaticProvider = _interopRequire(require("./providers/staticprovider"));
 var decoratorUtils = _interopRequireWildcard(require("./helpers/decorator"));
 
 var subcontainerUtils = _interopRequireWildcard(require("./helpers/subcontainer"));
+
+var ResourceNotFoundError = _interopRequire(require("./errors/resourcenotfounderror"));
 
 /*! Private definitions */
 
@@ -203,20 +203,37 @@ var Cation = (function () {
        */
       value: function get(id) {
         var _this = this;
+        // "foo:bar" => { "foo", "bar" }
         var _subcontainerUtils$extractNamespace = subcontainerUtils.extractNamespace(id);
 
         var subcontainerNamespace = _subcontainerUtils$extractNamespace.subcontainerNamespace;
         var subcontainerResourceId = _subcontainerUtils$extractNamespace.subcontainerResourceId;
 
 
+        // check if "foo" subcontainer for "foo:bar" exists.
+        // if so, try to retrieve "bar" from it.
         if (this.hasSubcontainer(subcontainerNamespace)) {
-          return this.getSubcontainer(subcontainerNamespace).get(subcontainerResourceId);
+          // immediately return the subcontainer#get promise
+          return this.getSubcontainer(subcontainerNamespace).get(subcontainerResourceId)["catch"](function (error) {
+            // when the error is thrown in a subcontainer resource,
+            // ensure the full resourceId is returned.
+            // Bad: container.get('foo:bar') -> `"bar" resource not found`
+            // Expected: container.get('foo:bar') -> `"foo:bar" resource not found`
+            if (error.constructor.name === "ResourceNotFoundError") {
+              var fullResourceId = "" + subcontainerNamespace + ":" + subcontainerResourceId;
+
+              error = new ResourceNotFoundError("\"" + fullResourceId + "\" resource not found");
+            }
+
+            // error bubbling
+            return Promise.reject(error);
+          });
         }
 
         // no subcontainer matches, proceed with the current one...
         return new Promise(function (resolve, reject) {
           if (!_this.has(id)) {
-            return reject(new Error("\"" + id + "\" resource not found"));
+            return reject(new ResourceNotFoundError("\"" + id + "\" resource not found"));
           }
 
           var provider = _this[__providerInstancesMap__].get(id);
@@ -296,6 +313,16 @@ var Cation = (function () {
        * @api public
        */
       value: function remove(id) {
+        var _subcontainerUtils$extractNamespace = subcontainerUtils.extractNamespace(id);
+
+        var subcontainerNamespace = _subcontainerUtils$extractNamespace.subcontainerNamespace;
+        var subcontainerResourceId = _subcontainerUtils$extractNamespace.subcontainerResourceId;
+
+
+        if (this.hasSubcontainer(subcontainerNamespace)) {
+          return this.getSubcontainer(subcontainerNamespace).remove(subcontainerResourceId);
+        }
+
         if (!this.has(id)) {
           return;
         }
@@ -597,10 +624,8 @@ var Cation = (function () {
 
 // And here... we... GO.
 exports["default"] = Cation;
-// import Cation from 'cation'
 exports.BasicProvider = BasicProvider;
-// import { BasicProvider } from 'cation'
-// import Cation, { BasicProvider } from 'cation'
+exports.ResourceNotFoundError = ResourceNotFoundError;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
