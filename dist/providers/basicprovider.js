@@ -6,8 +6,10 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
  * Basic Provider.
  * Intended as an Abstract Class. All providers must extend from this.
  */
+
 var BasicProvider = function BasicProvider(container, id, resource) {
   var options = arguments[3] === undefined ? {} : arguments[3];
+
   _classCallCheck(this, BasicProvider);
 
   if (!container || container.constructor.name !== "Cation") {

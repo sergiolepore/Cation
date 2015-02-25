@@ -15,9 +15,11 @@ var BasicProvider = _interopRequire(require("./basicprovider"));
 /**
  * Static Provider
  */
+
 var StaticProvider = (function (BasicProvider) {
   function StaticProvider(container, id, resource) {
     var options = arguments[3] === undefined ? {} : arguments[3];
+
     _classCallCheck(this, StaticProvider);
 
     _get(Object.getPrototypeOf(StaticProvider.prototype), "constructor", this).call(this, container, id, resource, options);
@@ -34,8 +36,10 @@ var StaticProvider = (function (BasicProvider) {
        * @return {Promise}
        * @api public
        */
+
       value: function get() {
         var _this = this;
+
         return new Promise(function (resolve) {
           return resolve(_this.resource);
         });

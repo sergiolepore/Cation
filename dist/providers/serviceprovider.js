@@ -19,9 +19,11 @@ var util = _interopRequireWildcard(require("../helpers/service"));
 /**
  * Service Provider
  */
+
 var ServiceProvider = (function (BasicProvider) {
   function ServiceProvider(container, id, resource) {
     var options = arguments[3] === undefined ? {} : arguments[3];
+
     _classCallCheck(this, ServiceProvider);
 
     _get(Object.getPrototypeOf(ServiceProvider.prototype), "constructor", this).call(this, container, id, resource, options);
@@ -38,8 +40,10 @@ var ServiceProvider = (function (BasicProvider) {
        * @return {Promise}
        * @api public
        */
+
       value: function get() {
         var _this = this;
+
         // resolve arguments
         var serviceDepsPromise = util.resolveDependencies(this.container, this.options.args);
 

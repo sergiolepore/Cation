@@ -9,6 +9,7 @@ var _prototypeProperties = function (child, staticProps, instanceProps) { if (st
 var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
 
 /*! Module dependencies */
+
 var BasicProvider = _interopRequire(require("./providers/basicprovider"));
 
 var ServiceProvider = _interopRequire(require("./providers/serviceprovider"));
@@ -84,10 +85,13 @@ var __subContainainersMap__ = Symbol();
 /**
  * Cation
  */
+
 var Cation = (function () {
   function Cation() {
     var _ref = arguments[0] === undefined ? {} : arguments[0];
+
     var id = _ref.id;
+
     _classCallCheck(this, Cation);
 
     this[__containerId__] = id;
@@ -115,6 +119,7 @@ var Cation = (function () {
        * @return {String}
        * @api public
        */
+
       value: function getId() {
         return this[__containerId__];
       },
@@ -139,8 +144,10 @@ var Cation = (function () {
        * @return {Promise}
        * @api public
        */
+
       value: function register(id, resource) {
         var options = arguments[2] === undefined ? {} : arguments[2];
+
         if (!id) {
           throw new Error("`id` is required");
         }
@@ -149,7 +156,6 @@ var Cation = (function () {
 
         var subcontainerNamespace = _subcontainerUtils$extractNamespace.subcontainerNamespace;
         var subcontainerResourceId = _subcontainerUtils$extractNamespace.subcontainerResourceId;
-
 
         if (subcontainerNamespace) {
           var subcontainer = this.getSubcontainer(subcontainerNamespace) || this.createSubcontainer(subcontainerNamespace);
@@ -201,14 +207,16 @@ var Cation = (function () {
        * @return {Promise}
        * @api public
        */
+
       value: function get(id) {
         var _this = this;
+
         // "foo:bar" => { "foo", "bar" }
+
         var _subcontainerUtils$extractNamespace = subcontainerUtils.extractNamespace(id);
 
         var subcontainerNamespace = _subcontainerUtils$extractNamespace.subcontainerNamespace;
         var subcontainerResourceId = _subcontainerUtils$extractNamespace.subcontainerResourceId;
-
 
         // check if "foo" subcontainer for "foo:bar" exists.
         // if so, try to retrieve "bar" from it.
@@ -284,12 +292,12 @@ var Cation = (function () {
        * @return {Boolean}
        * @api public
        */
+
       value: function has(id) {
         var _subcontainerUtils$extractNamespace = subcontainerUtils.extractNamespace(id);
 
         var subcontainerNamespace = _subcontainerUtils$extractNamespace.subcontainerNamespace;
         var subcontainerResourceId = _subcontainerUtils$extractNamespace.subcontainerResourceId;
-
 
         if (this.hasSubcontainer(subcontainerNamespace)) {
           return this.getSubcontainer(subcontainerNamespace).has(subcontainerResourceId);
@@ -312,12 +320,12 @@ var Cation = (function () {
        * @param {String}  id  Resource ID.
        * @api public
        */
+
       value: function remove(id) {
         var _subcontainerUtils$extractNamespace = subcontainerUtils.extractNamespace(id);
 
         var subcontainerNamespace = _subcontainerUtils$extractNamespace.subcontainerNamespace;
         var subcontainerResourceId = _subcontainerUtils$extractNamespace.subcontainerResourceId;
-
 
         if (this.hasSubcontainer(subcontainerNamespace)) {
           return this.getSubcontainer(subcontainerNamespace).remove(subcontainerResourceId);
@@ -341,6 +349,7 @@ var Cation = (function () {
        * @param {Function} providerFunction Provider function.
        * @api public
        */
+
       value: function addProvider(name, providerFunction) {
         if (this.hasProvider(name)) {
           return;
@@ -360,6 +369,7 @@ var Cation = (function () {
        * @return {Boolean}
        * @api public
        */
+
       value: function hasProvider(name) {
         return this[__providerConstructorsMap__].has(name);
       },
@@ -374,6 +384,7 @@ var Cation = (function () {
        * @param {String}  name  Provider name.
        * @api public
        */
+
       value: function removeProvider(name) {
         if (!this.hasProvider(name)) {
           return;
@@ -393,6 +404,7 @@ var Cation = (function () {
        * @param {Function} decoratorFunction  Decorator function.
        * @api public
        */
+
       value: function addDecorator(name, decoratorFunction) {
         if (this.hasDecorator(name)) {
           return;
@@ -411,6 +423,7 @@ var Cation = (function () {
        * @param {String}  name  Decorator name.
        * @api public
        */
+
       value: function hasDecorator(name) {
         return this[__decoratorFunctionsMap__].has(name);
       },
@@ -425,6 +438,7 @@ var Cation = (function () {
        * @param {String}  name  Decorator name.
        * @api public
        */
+
       value: function removeDecorator(name) {
         if (!this.hasDecorator(name)) {
           return;
@@ -445,12 +459,12 @@ var Cation = (function () {
        * @return {Boolean}
        * @api public
        */
+
       value: function isCached(id) {
         var _subcontainerUtils$extractNamespace = subcontainerUtils.extractNamespace(id);
 
         var subcontainerNamespace = _subcontainerUtils$extractNamespace.subcontainerNamespace;
         var subcontainerResourceId = _subcontainerUtils$extractNamespace.subcontainerResourceId;
-
 
         if (this.hasSubcontainer(subcontainerNamespace)) {
           return this.getSubcontainer(subcontainerNamespace).isCached(subcontainerResourceId);
@@ -468,6 +482,7 @@ var Cation = (function () {
        *
        * @api public
        */
+
       value: function clearCache() {
         var subcontainersMap = this[__subContainainersMap__];
 
@@ -489,6 +504,7 @@ var Cation = (function () {
        * @return {Array}
        * @api public
        */
+
       value: function findTaggedResourceIds(tagName) {
         var providerInstancesMap = this[__providerInstancesMap__];
         var subcontainersMap = this[__subContainainersMap__];
@@ -522,6 +538,7 @@ var Cation = (function () {
        * @return {Cation}  A new Cation instance.
        * @api public
        */
+
       value: function createSubcontainer(subcontainerId) {
         var subcontainer = new Cation({ id: subcontainerId });
 
@@ -540,6 +557,7 @@ var Cation = (function () {
        * @param {Cation}  container  A Cation instance
        * @api public
        */
+
       value: function attachSubcontainer(container) {
         var subcontainerId = container.getId();
 
@@ -565,6 +583,7 @@ var Cation = (function () {
        * @return {Boolean}
        * @api public
        */
+
       value: function hasSubcontainer(subcontainerId) {
         return this[__subContainainersMap__].has(subcontainerId);
       },
@@ -580,6 +599,7 @@ var Cation = (function () {
        * @return {Cation}
        * @api public
        */
+
       value: function getSubcontainer(subcontainerId) {
         return this[__subContainainersMap__].get(subcontainerId);
       },
@@ -594,6 +614,7 @@ var Cation = (function () {
        * @param {String}  subcontainerId  Subcontainer ID.
        * @api public
        */
+
       value: function detachSubcontainer(subcontainerId) {
         if (!this.hasSubcontainer(subcontainerId)) {
           return;
@@ -611,6 +632,7 @@ var Cation = (function () {
        *
        * @api public
        */
+
       value: function detachAllSubcontainers() {
         this[__subContainainersMap__].clear();
       },

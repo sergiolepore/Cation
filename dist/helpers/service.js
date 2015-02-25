@@ -14,6 +14,7 @@
 exports.resolveDependencies = resolveDependencies;
 function resolveDependencies(container) {
   var resourceArguments = arguments[1] === undefined ? [] : arguments[1];
+
   return new Promise(function (resolve, reject) {
     if (!resourceArguments.length) {
       return resolve([]);

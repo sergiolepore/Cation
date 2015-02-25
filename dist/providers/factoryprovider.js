@@ -15,9 +15,11 @@ var BasicProvider = _interopRequire(require("./basicprovider"));
 /**
  * Factory Provider
  */
+
 var FactoryProvider = (function (BasicProvider) {
   function FactoryProvider(container, id, resource) {
     var options = arguments[3] === undefined ? {} : arguments[3];
+
     _classCallCheck(this, FactoryProvider);
 
     _get(Object.getPrototypeOf(FactoryProvider.prototype), "constructor", this).call(this, container, id, resource, options);
@@ -34,6 +36,7 @@ var FactoryProvider = (function (BasicProvider) {
        * @return {Promise}
        * @api public
        */
+
       value: function get() {
         return this.resource.apply(this.resource, [this.container]) // execute the factory function. it must return a promise.
         ;
