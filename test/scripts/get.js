@@ -5,5 +5,4 @@ describe('Get a resource from the container:', function(){
   require('./get/decorator')
   require('./get/static')
   require('./get/custom')
-  require('./get/subcontainer')
 })

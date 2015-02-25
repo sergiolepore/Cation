@@ -4,7 +4,6 @@ import ServiceProvider        from './providers/serviceprovider'
 import FactoryProvider        from './providers/factoryprovider'
 import StaticProvider         from './providers/staticprovider'
 import * as decoratorUtils    from './helpers/decorator'
-import * as subcontainerUtils from './helpers/subcontainer'
 import ResourceNotFoundError  from './errors/resourcenotfounderror'
 
 /*! Private definitions */
@@ -54,15 +53,6 @@ var __providerConstructorsMap__ = Symbol()
  */
 var __decoratorFunctionsMap__ = Symbol()
 
-/**
- * SubContainers Map.
- * "Namespace/Cation Instance" Map object for SubContainers.
- *
- * @type {Map}
- * @api private
- */
-var __subContainainersMap__ = Symbol()
-
 /*! ========================================================================= */
 
 /**
@@ -76,7 +66,6 @@ class Cation
     this[__resourceInstancesMap__]    = new Map()
     this[__providerConstructorsMap__] = new Map()
     this[__decoratorFunctionsMap__]   = new Map()
-    this[__subContainainersMap__]     = new Map()
 
     this.addProvider('service', ServiceProvider)
     this.addProvider('factory', FactoryProvider)
@@ -116,14 +105,6 @@ class Cation
   register(id, resource, options={}) {
     if (!id) {
       throw new Error('`id` is required')
-    }
-
-    let { subcontainerNamespace, subcontainerResourceId } = subcontainerUtils.extractNamespace(id)
-
-    if (subcontainerNamespace) {
-      let subcontainer = this.getSubcontainer(subcontainerNamespace) || this.createSubcontainer(subcontainerNamespace)
-
-      return subcontainer.register(subcontainerResourceId, resource, options)
     }
 
     if (!resource) {
@@ -167,33 +148,6 @@ class Cation
    * @api public
    */
   get(id) {
-    // "foo:bar" => { "foo", "bar" }
-    let { subcontainerNamespace, subcontainerResourceId } = subcontainerUtils.extractNamespace(id)
-
-    // check if "foo" subcontainer for "foo:bar" exists.
-    // if so, try to retrieve "bar" from it.
-    if (this.hasSubcontainer(subcontainerNamespace)) {
-      // immediately return the subcontainer#get promise
-      return this
-        .getSubcontainer(subcontainerNamespace)
-        .get(subcontainerResourceId)
-        .catch(error => {
-          // when the error is thrown in a subcontainer resource,
-          // ensure the full resourceId is returned.
-          // Bad: container.get('foo:bar') -> `"bar" resource not found`
-          // Expected: container.get('foo:bar') -> `"foo:bar" resource not found`
-          if (error.constructor.name === 'ResourceNotFoundError') {
-            let fullResourceId = `${subcontainerNamespace}:${subcontainerResourceId}`
-
-            error = new ResourceNotFoundError(`"${fullResourceId}" resource not found`)
-          }
-
-          // error bubbling
-          return Promise.reject(error)
-        })
-    }
-
-    // no subcontainer matches, proceed with the current one...
     return new Promise((resolve, reject) => {
       if (!this.has(id)) {
         return reject(new ResourceNotFoundError(`"${id}" resource not found`))
@@ -246,12 +200,6 @@ class Cation
    * @api public
    */
   has(id) {
-    let { subcontainerNamespace, subcontainerResourceId } = subcontainerUtils.extractNamespace(id)
-
-    if (this.hasSubcontainer(subcontainerNamespace)) {
-      return this.getSubcontainer(subcontainerNamespace).has(subcontainerResourceId)
-    }
-
     if (this[__providerInstancesMap__].has(id)) {
       return true
     }
@@ -266,12 +214,6 @@ class Cation
    * @api public
    */
   remove(id) {
-    let { subcontainerNamespace, subcontainerResourceId } = subcontainerUtils.extractNamespace(id)
-
-    if (this.hasSubcontainer(subcontainerNamespace)) {
-      return this.getSubcontainer(subcontainerNamespace).remove(subcontainerResourceId)
-    }
-
     if (!this.has(id)) {
       return
     }
@@ -367,12 +309,6 @@ class Cation
    * @api public
    */
   isCached(id) {
-    let { subcontainerNamespace, subcontainerResourceId } = subcontainerUtils.extractNamespace(id)
-
-    if (this.hasSubcontainer(subcontainerNamespace)) {
-      return this.getSubcontainer(subcontainerNamespace).isCached(subcontainerResourceId)
-    }
-
     return this[__resourceInstancesMap__].has(id)
   }
 
@@ -382,13 +318,7 @@ class Cation
    * @api public
    */
   clearCache() {
-    let subcontainersMap = this[__subContainainersMap__]
-
     this[__resourceInstancesMap__].clear()
-
-    subcontainersMap.forEach(subcontainer => {
-      subcontainer.clearCache()
-    })
   }
 
   /**
@@ -400,7 +330,6 @@ class Cation
    */
   findTaggedResourceIds(tagName) {
     let providerInstancesMap = this[__providerInstancesMap__]
-    let subcontainersMap     = this[__subContainainersMap__]
     let resourceIds          = []
 
     providerInstancesMap.forEach((provider, resourceId) => {
@@ -409,95 +338,7 @@ class Cation
       }
     })
 
-    subcontainersMap.forEach(subcontainer => {
-      let subcontainerIds = subcontainer
-        .findTaggedResourceIds(tagName)
-        .map(resourceId => `${subcontainer.getId()}:${resourceId}`)
-
-      resourceIds = resourceIds.concat(subcontainerIds)
-    })
-
     return resourceIds
-  }
-
-  /**
-   * Create a new container inside the current one.
-   *
-   * @param {String}  subcontainerId  The subcontainer ID. Required.
-   * @return {Cation}  A new Cation instance.
-   * @api public
-   */
-  createSubcontainer(subcontainerId) {
-    let subcontainer = new Cation({ id: subcontainerId })
-
-    this.attachSubcontainer(subcontainer)
-
-    return subcontainer
-  }
-
-  /**
-   * Registers a new container inside the current one.
-   *
-   * @param {Cation}  container  A Cation instance
-   * @api public
-   */
-  attachSubcontainer(container) {
-    let subcontainerId = container.getId()
-
-    if (!subcontainerId) {
-      throw new Error('The subcontainer must have an ID.')
-    }
-
-    if (this.hasSubcontainer(subcontainerId)) {
-      throw new Error(`There's already a subcontainer with ID "${subcontainerId}"`)
-    }
-
-    this[__subContainainersMap__].set(subcontainerId, container)
-  }
-
-  /**
-   * Checks if a given subcontainer is registered inside the current one.
-   *
-   * @param {String}  subcontainerId  Subcontainer ID.
-   * @return {Boolean}
-   * @api public
-   */
-  hasSubcontainer(subcontainerId) {
-    return this[__subContainainersMap__].has(subcontainerId)
-  }
-
-  /**
-   * Returns a subcontainer.
-   *
-   * @param {String}  subcontainerId  Subcontainer ID.
-   * @return {Cation}
-   * @api public
-   */
-  getSubcontainer(subcontainerId) {
-    return this[__subContainainersMap__].get(subcontainerId)
-  }
-
-  /**
-   * Removes a subcontainer.
-   *
-   * @param {String}  subcontainerId  Subcontainer ID.
-   * @api public
-   */
-  detachSubcontainer(subcontainerId) {
-    if (!this.hasSubcontainer(subcontainerId)) {
-      return
-    }
-
-    this[__subContainainersMap__].delete(subcontainerId)
-  }
-
-  /**
-   * Removes all subcontainers.
-   *
-   * @api public
-   */
-  detachAllSubcontainers() {
-    this[__subContainainersMap__].clear()
   }
 }
 
