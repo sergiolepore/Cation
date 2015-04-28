@@ -1,5 +1,8 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 /*! Decorator Helper */
 
 /**
@@ -14,11 +17,9 @@
  * @return {Object}                    The resource instance just decorated.
  */
 exports.reducer = reducer;
+
 function reducer(instance, decoratorFunction) {
   // each decorator must return the decorated instance.
   // this way it feeds the next decorator in the chain.
   return decoratorFunction(instance);
 }
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
