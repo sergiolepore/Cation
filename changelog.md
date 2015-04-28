@@ -1,4 +1,9 @@
 
+## 2.3.0 (April 27, 2015)
+
+  * [Enhancement] replace 6to5 with babel
+  * [Documentation] fix typo in ES6 Examples
+
 ## 2.2.1 (February 10, 2015)
 
   * [Bugfix] Singleton behaviour wasn't working at all. Fixes #10
