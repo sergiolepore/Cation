@@ -7,6 +7,3 @@ var CationES6Module = require('./dist/cation.js')
 
 // for normal/CommonJS support
 module.exports = CationES6Module.default
-
-// babel support
-exports = CationES6Module
