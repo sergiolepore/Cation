@@ -1,5 +1,8 @@
-"use strict";
+'use strict';
 
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
 /*! Service helper */
 
 /**
@@ -12,8 +15,10 @@
  * @api public
  */
 exports.resolveDependencies = resolveDependencies;
+
 function resolveDependencies(container) {
   var resourceArguments = arguments[1] === undefined ? [] : arguments[1];
+
   return new Promise(function (resolve, reject) {
     if (!resourceArguments.length) {
       return resolve([]);
@@ -28,7 +33,7 @@ function resolveDependencies(container) {
     // try to resolve all promises in the array
     Promise.all(resolvedArguments).then(function (serviceArgs) {
       return resolve(serviceArgs);
-    })["catch"](function (error) {
+    })['catch'](function (error) {
       return reject(error);
     });
   });
@@ -46,18 +51,18 @@ function resolveDependencies(container) {
  */
 function resolveArgument(container, argument) {
   var actions = {
-    "@": function (value) {
+    '@': function _(value) {
       // when argument starts with `@`, it's a Resource Reference.
       return container.get(value);
     },
 
-    "default": function (value) {
+    'default': function _default(value) {
       return value;
     }
   };
 
   // we cant extract a service id reference from anything but a string
-  if (typeof argument !== "string") {
+  if (typeof argument !== 'string') {
     return argument;
   }
 
@@ -70,12 +75,9 @@ function resolveArgument(container, argument) {
   var resolverAction = matches[1]; // get the reference char "@" or the escape char "\\"
   var resolverValue = matches[2]; // get the clean argument (without "@" or "\\")
 
-  if (typeof actions[resolverAction] === "undefined") {
-    return actions["default"](resolverValue);
+  if (typeof actions[resolverAction] === 'undefined') {
+    return actions['default'](resolverValue);
   }
 
   return actions[resolverAction](resolverValue);
 }
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});

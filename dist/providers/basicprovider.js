@@ -1,28 +1,34 @@
-"use strict";
+'use strict';
 
-var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
 
 /**
  * Basic Provider.
  * Intended as an Abstract Class. All providers must extend from this.
  */
+
 var BasicProvider = function BasicProvider(container, id, resource) {
   var options = arguments[3] === undefined ? {} : arguments[3];
+
   _classCallCheck(this, BasicProvider);
 
-  if (!container || container.constructor.name !== "Cation") {
-    throw new Error("Invalid container instance");
+  if (!container || container.constructor.name !== 'Cation') {
+    throw new Error('Invalid container instance');
   }
 
-  if (typeof options.args === "undefined") {
+  if (typeof options.args === 'undefined') {
     options.args = [];
   }
 
-  if (typeof options.decorators === "undefined") {
+  if (typeof options.decorators === 'undefined') {
     options.decorators = [];
   }
 
-  if (typeof options.tags === "undefined") {
+  if (typeof options.tags === 'undefined') {
     options.tags = [];
   }
 
@@ -32,4 +38,5 @@ var BasicProvider = function BasicProvider(container, id, resource) {
   this.options = options;
 };
 
-module.exports = BasicProvider;
+exports['default'] = BasicProvider;
+module.exports = exports['default'];
